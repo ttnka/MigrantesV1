@@ -4,6 +4,10 @@
 @using TorneosV2.Modelos
 @using static TorneosV2.Modelos.MyFunc;
 
+@if(!EsNuevoUser && ElUser != null && ElUser.UserId.Length > 15 )
+{
+        <RadzenLabel> Mis Datos</RadzenLabel>
+}
 
 <RadzenTemplateForm @ref="UserForm" Data="@NuevoUser" Submit="@((AddUser args) => { AddUserNew(args); })">
     <RadzenFieldset Text="Nuevo Usuario" Style="width:80%">

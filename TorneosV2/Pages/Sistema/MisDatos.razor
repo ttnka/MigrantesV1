@@ -1,6 +1,16 @@
-﻿@inherits MisDatosBase
+﻿@inherits UsuariosListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
 
-<h3>Component1</h3>
+@if(ElUser != null && ElUser.UserId.Length > 15 )
+{
+   <NuevoUsuario EsNuevoUser="false" />
+}
+    else
+{
+
+}
 
 @code {
 

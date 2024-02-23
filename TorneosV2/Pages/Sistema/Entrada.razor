@@ -1,0 +1,126 @@
+﻿@page "/entrada"
+@page "/entrada/{UrlReturn}"
+@inherits EntradaBase
+
+<RadzenTemplateForm @ref="LoginForm" Data="@NuevoLogin" Submit="@((LoginUser arg) => { LogInTask(arg); })">
+    <RadzenFieldset Text="Indentificate" Style="width:80%">
+        <div class="container-fluid" style="background: lightgray;">
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Mail" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="EMail" @bind-Value="NuevoLogin.Email"
+                                   Placeholder="e-Mail" MaxLength="75" Change="CheckPass" />
+                    <RadzenRequiredValidator Component="EMail" Text="Email es requerido" />
+                    <RadzenEmailValidator Component="EMail" Text="Se requiere un Email Valido" />
+
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Password" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="EMail" @bind-Value="NuevoLogin.Pass"
+                                   Placeholder="Password" MaxLength="75" Change="CheckPass" />
+                    <button type="button" @onclick="PasswordVisibility" style="margin-top: 5px;">
+                        @((showPassword ? "Ocultar" : "Mostrar") + " password")
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Recordar me" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenLabel>En este dispositivo por 30 dias -No</RadzenLabel>
+                    <RadzenSwitch @bind-Value="NuevoLogin.Recordar" Disabled="showRecordar" />
+                    <RadzenLabel>Si</RadzenLabel>
+                </div>
+            </div>
+
+            <div class="row" >
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Recordar me" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenLabel>En este dispositivo por 30 dias -No</RadzenLabel>
+                    <RadzenSwitch @bind-Value="NuevoLogin.Recordar" Disabled="showRecordar" />
+                    <RadzenLabel>Si</RadzenLabel>
+                </div>
+            </div>
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                </div>
+                <div class="col-md-8">
+                    @if (Msn == "Ok")
+                    {
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                      Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo">
+                            Entrar
+                        </RadzenButton>
+                    }
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="Cancelar" />
+
+                    <RadzenButton Icon="Home" ButtonStyle="ButtonStyle.Info" Class="m-1"
+                                  Click="(LoginUser arg) => { RecuperarTask(arg)" Disabled="showRecupera" >
+                        Recuperar mi Password!
+                    </RadzenButton>
+                </div>
+            </div>
+        </div>
+
+</RadzenFieldset>
+</RadzenTemplateForm>
+
+@code {
+
+    private int intentos = 0;
+    private bool BotonNuevo = false;
+    private bool showRecordar = true;
+    private bool showRecupera = true;
+    private bool showPassword = false;
+    private string Msn = "";
+
+    private void PasswordVisibility ()
+    {
+        showPassword = !showPassword;
+    }
+
+    void CheckPass()
+    {
+        Msn = "";
+        showRecordar = true;
+        showRecupera = true;
+
+        if (NuevoLogin.Email.Length < 5) return;
+
+        showRecupera = false;
+
+        if (NuevoLogin.Pass.Length < 5 ) return;
+
+        showRecordar = false;
+        Msn = "Ok";
+    }
+
+    void Cancelar()
+    {
+        NuevoLogin = new();
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}
+

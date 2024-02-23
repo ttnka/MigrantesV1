@@ -66,12 +66,23 @@ namespace TorneosV2.Pages.Sistema
 
         protected void Leer()
         {
+            if (!EsNuevoUser)
+            {
+                NuevoUser.Nombre = ElUser.Nombre;
+
+            }
             if (Niveles.Any()) return;
             string[] nTmp = Constantes.Niveles.Split(',');
             for(int i = 0; i < nTmp.Length; i++)
             {
                 Niveles.Add(new KeyValuePair<int, string>(i + 1, nTmp[i]));
             }
+        }
+
+        protected void AsignarMisDatos()
+        {
+            NuevoUser.Nombre = ElUser.Nombre;
+            NuevoUser.Paterno = ElUser.Paterno;
         }
 
         protected async Task LeerUsers()
