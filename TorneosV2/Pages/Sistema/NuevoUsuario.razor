@@ -1,0 +1,199 @@
+﻿
+@inherits UsuariosListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
+
+
+<RadzenTemplateForm @ref="UserForm" Data="@NuevoUser" Submit="@((AddUser args) => { AddUserNew(args); })">
+    <RadzenFieldset Text="Nuevo Usuario" Style="width:80%">
+
+        <div class="container-fluid" style="background: lightgray;">
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Mail Usuario" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="Mail" @bind-Value="NuevoUser.Mail"
+                                   Placeholder="e-Mail" MaxLength="75" Change="CheckPass" />
+                    <RadzenRequiredValidator Component="Mail" Text="Email es requerido" />
+                    <RadzenEmailValidator Component="Mail" Text="Se requiere un Email Valido" />
+                    <RadzenLabel Style="color: white">@Msn</RadzenLabel>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Password" />
+                </div>
+                <div class="col-md-8">
+                    @if (EsNuevoUser == true)
+                    {
+                        <RadzenLabel Text="Se envia via E-MAIL" />
+                    }
+                    else
+                    {
+                        <RadzenTextBox style="width: 90%;" Name="Pass" @bind-Value="NuevoUser.Pass"
+                                       Placeholder="e-Mail" MaxLength="75" Change="CheckPass" /> <br />
+                        <RadzenRequiredValidator Component="Mail" Text="Email es requerido" />
+
+                    }
+
+                </div>
+            </div>
+
+            @if (EsNuevoUser == false)
+            {
+                <div class="row" style="background:blue">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Repite Password" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="width: 90%;" Name="Confirm" @bind-Value="NuevoUser.Confirm"
+                                       Placeholder="Repite tu Password" MaxLength="75" Change="CheckPass" /> <br />
+                        <RadzenRequiredValidator Component="Confirm" Text="Confirma es requerido" />
+
+                    </div>
+                </div>
+            }
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nombre Usuario Administrador" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="Nombre" MaxLength="25" Change="CheckPass"
+                                   @bind-Value="NuevoUser.Nombre" Placeholder="Nombres" />
+                    <RadzenLengthValidator Component="Nombre" Min="1"
+                                           Text="El Nombre del administrador es NECESARIO!" Style="position: absolute" /><br />
+
+                    <RadzenTextBox style="width: 90%;" Name="Paterno" MaxLength="25" Change="CheckPass"
+                                   @bind-Value="NuevoUser.Paterno" Placeholder="Apellido Paterno" />
+                    <RadzenLengthValidator Component="Paterno" Min="1"
+                                           Text="El apellido paterno del administrador es NECESARIO!" Style="position: absolute" /><br />
+
+                    <RadzenTextBox style="width: 90%;" Name="Materno" MaxLength="25"
+                                   @bind-Value="NuevoUser.Materno" Placeholder="Apellido Materno" />
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Organizacion" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenDropDown Name="OrgId" Data=OrgDrop @bind-Value=@NuevoUser.OrgId Change="CheckPass"
+                                    ValueProperty="OrgId" TextProperty="Comercial" AllowClear="false"
+                                    Style="width: 90%;" />
+                    <RadzenLabel Style="color: red">@Msn</RadzenLabel>
+                </div>
+            </div>
+
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                </div>
+                <div class="col-md-8">
+                    @if (Msn == "Ok")
+                    {
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo">
+                        Agregar
+                        </RadzenButton>
+                    }
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="Cancelar" />
+                </div>
+            </div>
+        </div>
+
+    </RadzenFieldset>
+</RadzenTemplateForm>
+
+
+@code {
+    void Cancelar()
+    {
+        NuevoUser = new("", "", "", "", "", "", "", "", "", 3, "", true);
+        Msn = "";
+        StateHasChanged();
+    }
+
+    async Task AddUserNew(AddUser user)
+    {
+        try
+        {
+            Editando = !Editando;
+            BotonNuevo = true;
+            user.UserId = "";
+            user.Pass = EsNuevoUser ? "Password1" : user.Pass;
+            user.OldMail = user.Mail;
+            user.OrgName = "";
+            user.Url = "";
+            user.Sistema = true;
+
+            ApiRespuesta<Z110_User> resultado = await NewUser(user);
+
+            string txt = $"Mail: {resultado.Data.OldEmail}, ";
+            txt += $"Se agrego a la organizacion: {resultado.Data.Org.Comercial}    ,  ";
+            txt += $"Nivel: {Niveles[resultado.Data.Nivel]}"; ;
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Ok", "Nuevo Usuario",
+                            $"Estamos creado un nuevo USUARIO {resultado.Data.Completo}!!! ", 0));
+                txt = $"{TBita}, Creo un nuevo USUARIO {resultado.Data.Completo} " + txt;
+                if (resultado.MsnError.Any())
+                {
+                    foreach (var m in resultado.MsnError)
+                    {
+                        txt += " " + m;
+                    }
+                }
+             
+                Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+                bitaT.OrgAdd(ElUser.Org);
+                await BitacoraAll(bitaT);
+
+                await LeerUsers();
+
+            }
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                            $"No pudo ser creado un nuevo usuario!!! {resultado.Data.Completo} ", 0));
+                txt = $"{TBita}, NO se creo una nuevo usuario {resultado.Data.Completo} " + txt;
+                foreach (var e in resultado.MsnError)
+                {
+                    txt += e;
+                }
+                Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+                await LogAll(logTemp);
+            }
+            BotonNuevo = false;
+            NuevoUser = new("", "", "", "", "", "", "", "", "", 1, "", true);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logT = new(ElUser.UserId,
+                $"Error, No fue posible agregar un nuevo usuario, {TBita}, {ex}", true);
+            await LogAll(logT);
+        }
+    }
+
+    AddUser UserToInsert = new("", "", "", "", "", "", "", "", "", 1, "", true);
+
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
+
+}
+

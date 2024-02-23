@@ -1,0 +1,44 @@
+﻿@page "/sistema"
+@inherits IndexSistemaBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+
+<h3>Administracion DashBoard RH</h3>
+<AuthorizeView>
+    <Authorized>
+        <CascadingValue Value="ElUser" Name="ElUserAll">
+
+            @if (ElUser == null || ElUser.OrgId.Length < 10)
+            {
+                <div class="spinner">
+                    User
+                </div>
+            }
+            else
+            {
+                <RadzenTabs>
+                    <Tabs>
+                        <RadzenTabsItem Text="Organizaciones">
+                            <OrgList />
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="Usuarios">
+                            <UsuariosList SoloLista="false" />
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+                            }
+            </CascadingValue>
+    </Authorized>
+
+    <NotAuthorized>
+        <h1>Es necesario firmar para consultar esta pagina, </h1>
+        <RadzenLink Icon="accessibility" Path="Identity/Account/Login?ReturnUrl=/"
+                    Text="Firma" />
+    </NotAuthorized>
+</AuthorizeView>
+
+        @code {
+
+        }
+
+

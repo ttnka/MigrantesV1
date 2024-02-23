@@ -1,0 +1,230 @@
+﻿@inherits OrgListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
+
+<RadzenTemplateForm @ref="OrgForm" Data="@OrgNew" Submit="@((LaOrgNew args) => { AddOrg(args); })">
+    <RadzenFieldset Text="Nueva Empresa" Style="width:80%">
+
+        <div class="container-fluid" style="background: lightgray;">
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="RFC" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="Rfc" @bind-Value="OrgNew.Rfc"
+                                   MaxLength="13" Change="ChecarFormato" /><br />
+                    <RadzenLengthValidator Component="Rfc" Min="12" Max="13" Text="EL RFC debe ser de 12 o 13 Digitos"
+                                           Style="position: absolute" />
+
+                    @if (Msn.Length > 2)
+                    {
+                        <RadzenLabel Style="color:white">@Msn</RadzenLabel>
+                    }
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nombre Comercial" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%; padding: 5px;" Name="Comercial"
+                                   @bind-Value="OrgNew.Comercial" MaxLength="25" Change="ChecarFormato" />
+                    <RadzenLengthValidator Component="Comercial" Min="1" Text="El Nombre Comercial es NECESARIO!"
+                                           Style="position: absolute" />
+                </div>
+            </div>
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Razón Social" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="RazonSocial" Change="ChecarFormato"
+                                   @bind-Value="OrgNew.RazonSocial" MaxLength="75" />
+                    <RadzenLengthValidator Component="RazonSocial" Min="1" Text="La razon social es NECESARIA!"
+                                           Style="position: absolute" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Tipo de Empresa" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenDropDown Name="Tipo" Data=TipoOrgs @bind-Value=@OrgNew.Tipo
+                                    ValueProperty="Key" TextProperty="Value" AllowClear="true"
+                                    Style="width: 90%;" />
+
+                </div>
+            </div>
+            @if (OrgNew.Tipo == "Cliente")
+            {
+                <div class="row">
+                    <div class="col-md-4 align-items-center d-flex">
+                        <RadzenLabel Text="Numero de Cliente" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="width: 90%;" Name="NumCliente"
+                                       @bind-Value="OrgNew.NumCliente" MaxLength="10" />
+                    </div>
+                </div>
+            }
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Mail Usuario Administrador" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="Mail" @bind-Value="OrgNew.Mail"
+                                   Placeholder="e-Mail" Change="ChecarFormato" MaxLength="75" /> <br />
+                    <RadzenRequiredValidator Component="Mail" Text="Email es requerido" />
+                    <RadzenEmailValidator Component="Mail" Text="Se requiere un Email Valido" />
+
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Nombre Usuario Administrador" />
+                </div>
+                <div class="col-md-8">
+                    <RadzenTextBox style="width: 90%;" Name="UsuarioNombre" MaxLength="25"
+                                   @bind-Value="OrgNew.Nombre" Placeholder="Nombres" />
+                    <RadzenLengthValidator Component="UsuarioNombre" Min="1"
+                                           Text="El Nombre del administrador es NECESARIO!" Style="position: absolute" /><br />
+
+                    <RadzenTextBox style="width: 90%;" Name="UsuarioPaterno" MaxLength="25"
+                                   @bind-Value="OrgNew.Paterno" Placeholder="Apellido Paterno" />
+                    <RadzenLengthValidator Component="UsuarioPaterno" Min="1"
+                                           Text="El apellido paterno del administrador es NECESARIO!" Style="position: absolute" /><br />
+
+                    <RadzenTextBox style="width: 90%;" Name="UsuarioMaterno" MaxLength="25"
+                                   @bind-Value="OrgNew.Materno" Placeholder="Apellido Materno" />
+
+                </div>
+            </div>
+
+            
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                </div>
+                <div class="col-md-8">
+                    @if (Msn == "Ok")
+                    {
+                        <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                      Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo">
+                            Agregar
+                        </RadzenButton>
+                    }
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="Cancelar" />
+                </div>
+            </div>
+        </div>
+
+    </RadzenFieldset>
+</RadzenTemplateForm>
+
+
+@code {
+    void Cancelar()
+    {
+        OrgNew = new();
+        Msn = "";
+        StateHasChanged();
+    }
+
+    async Task AddOrg(LaOrgNew org)
+    {
+        try
+        {
+            Editando = !Editando;
+            BotonNuevo = true;
+
+            org.OrgId = Guid.NewGuid().ToString();
+            org.Estado = 3;
+            org.Rfc = org.Rfc.ToUpper();
+            org.Mail = org.Mail.ToLower();
+            org.Moral = org.Rfc.Length == 12;
+            org.Nivel = 5;
+            org.Pass = "Password1.";
+
+            ApiRespuesta<LaOrgNew> resultado = await ServicioNew(org);
+
+            string txt = $"Razon Social: {org.RazonSocial}, Tipo: ";
+            txt += org.Rfc.Length == 13 ? "Fisica" : "Moral";
+            txt += $"tipo: {org.Tipo}, num cliente: {org.NumCliente},";
+            txt += org.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+            if (resultado.Exito)
+            {
+                ShowNotification(ElMsn("Ok", "Nueva",
+                            $"Estamos creado un nueva ORGANIZACION {org.Comercial}!!! ", 0));
+                txt = $"{TBita}, Creo una nueva organizacion {org.Comercial} " + txt;
+
+                if (resultado.MsnError.Any())
+                {
+                    foreach(var m in resultado.MsnError)
+                    {
+                        txt += m;
+                    }
+                }
+
+                Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+                bitaT.OrgAdd(ElUser.Org);
+                await BitacoraAll(bitaT);
+
+                ShowNotification(ElMsn("Ok", "Nuevo administrador",
+                            $"Estamos creando un nuevo ADMINISTRADOR de {org.Nombre} {org.Paterno} {org.Materno} !!!", 0));
+                string txt1 = $"{TBita}, Creo un nuevo administrador para la organizacion {org.Comercial} {org.NumCliente}, " +
+                        $"Email:{org.Mail}, nombre {org.Nombre} {org.Paterno} {org.Materno}";
+
+                Z190_Bitacora bitaTemp1 = new(ElUser.UserId, txt1, ElUser.OrgId);
+                bitaTemp1.OrgAdd(ElUser.Org);
+                await BitacoraAll(bitaTemp1);
+
+                await LeerOrgs();
+
+            }
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                            $"No pudo ser creada un nueva ORGANIZACION!!! {org.Comercial} {org.NumCliente}", 0));
+                txt = $"{TBita}, NO se creo una nueva organizacion {org.Comercial} " + txt;
+                foreach (var e in resultado.MsnError)
+                {
+                    txt += e;
+                }
+                Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+                await LogAll(logTemp);
+            }
+            BotonNuevo = false;
+            OrgNew = new();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logT = new(ElUser.UserId,
+                $"Error, No fue posible agregar una organizacion, {TBita}, {ex}", true);
+            await LogAll(logT);
+        }
+
+    }
+
+    LaOrgNew OrgToInsert = new();
+
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
+
+}
