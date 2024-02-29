@@ -33,6 +33,7 @@ namespace TorneosV2.Pages.Sistema
 
         // Listados y Clases
         public AddUser NuevoUser { get; set; } = new("", "", "", "", "", "", "", "", "", 1, "", true);
+        public Z110_User NuevoMisDatos { get; set; } = default!;
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
         public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
         public List<Z100_Org> OrgDrop { get; set; } = new List<Z100_Org>();
@@ -42,7 +43,7 @@ namespace TorneosV2.Pages.Sistema
 
         public RadzenDataGrid<Z110_User>? UsersGrid { get; set; } = new RadzenDataGrid<Z110_User>();
         public RadzenTemplateForm<AddUser>? UserForm { get; set; } = new RadzenTemplateForm<AddUser>();
-
+        
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
@@ -50,12 +51,14 @@ namespace TorneosV2.Pages.Sistema
         protected bool AddFormShow { get; set; } = false;
         protected bool BotonNuevo { get; set; } = false;
         protected string BtnNewText { get; set; } = "Nuevo Usuario";
+        
         public string Msn { get; set; } = "";
 
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
+          
                 Leer();
                 
                 Primera = false;
@@ -66,6 +69,7 @@ namespace TorneosV2.Pages.Sistema
 
         protected void Leer()
         {
+            Leyendo = true;
             if (!EsNuevoUser)
             {
                 NuevoUser.Nombre = ElUser.Nombre;
@@ -77,6 +81,7 @@ namespace TorneosV2.Pages.Sistema
             {
                 Niveles.Add(new KeyValuePair<int, string>(i + 1, nTmp[i]));
             }
+            Leyendo = false;
         }
 
         protected void AsignarMisDatos()
@@ -87,14 +92,16 @@ namespace TorneosV2.Pages.Sistema
 
         protected async Task LeerUsers()
         {
+            Leyendo = true;
             try
             {
                 IEnumerable<Z110_User> UserTmp = await UserRepo.Get(x => x.OrgId == (SoloLista ?
                                                     OrgIndy.OrgId : x.OrgId ));
                 LosUsers = UserTmp.Any() ? UserTmp.ToList() : LosUsers;
 
-                IEnumerable<Z100_Org> orgTmp = await OrgRepo.Get(x => x.Estado == (ElUser.Nivel < 6 ? 1 : x.Estado));
-
+                IEnumerable<Z100_Org> orgTmp = await OrgRepo.Get(x => x.Estado == (ElUser.Nivel < 6 ? 1 : x.Estado) &&
+                    x.OrgId == ( EsNuevoUser ? x.OrgId : ElUser.OrgId ));
+ 
                 OrgDrop = orgTmp.Any() ? orgTmp.Where(x => x.OrgId ==
                                                 (SoloLista ? OrgIndy.OrgId : x.OrgId)).ToList() : OrgDrop;
 
@@ -110,6 +117,7 @@ namespace TorneosV2.Pages.Sistema
                     $"Error al intentar leer los usuarios o las organizaciones {TBita} {ex}", false);
                 await LogAll(logT);
             }
+            Leyendo = false;
         }
 
         protected void CheckPass()
@@ -196,6 +204,7 @@ namespace TorneosV2.Pages.Sistema
             }
             return resp;
         }
+
 
         protected async Task<ApiRespuesta<Z110_User>> Update(Z110_User user)
         {

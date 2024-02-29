@@ -1,0 +1,68 @@
+﻿@page "/recuperapass"
+@inherits RecuperaPassBase
+@inject NotificationService NS
+
+<RadzenTemplateForm @ref="RecuperaForm" Data="@RecuperaData" Submit="@((MailInfo arg) => { SendInfo(arg); })">
+    <RadzenFieldset Text="Indentificate" Style="width:80%">
+        <div class="container-fluid" style="background: lightgray;">
+
+            <div class="row" style="background:gray">
+                <div class="col-md-4 align-items-center d-flex">
+                    <RadzenLabel Text="Mail" />
+                </div>
+                <div class="col-md-8">
+
+                    <RadzenTextBox style="width: 90%;" Name="EMail" @bind-Value="RecuperaData.EMail"
+                                   Placeholder="e-Mail" MaxLength="75" Change="CheckPass" />
+                    <RadzenRequiredValidator Component="EMail" Text="Email es requerido" />
+                    <RadzenEmailValidator Component="EMail" Text="Se requiere un Email Valido" />
+
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-md-4 align-items-center d-flex">
+                </div>
+                <div class="col-md-8">
+                    
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                    Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo">
+                        Recuperar
+                    </RadzenButton>
+                    
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="Cancelar" />
+
+                </div>
+            </div>
+        </div>
+
+    </RadzenFieldset>
+</RadzenTemplateForm>
+
+@code {
+
+    private string Msn = "";
+    private bool BotonNuevo = true;
+
+    async Task SendInfo(MailInfo data)
+    {
+        await RecuperarTask();
+    }
+
+    void CheckPass()
+    {
+        if (RecuperaData.EMail.Length > 5)
+        {
+            BotonNuevo = false;
+        }
+    }
+
+    void Cancelar()
+    {
+        RecuperaData = new();
+    }
+
+}
+

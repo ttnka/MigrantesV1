@@ -1,0 +1,16 @@
+﻿@page "/exitocambiopass"
+@inherits exitosBase
+
+<h3>Exito cambio de Password</h3>
+
+<p>Se cambio exitosamente el password, en caso contrario enviamos un email al usuario!</p>
+
+<RadzenButton Click="EnviarHome"></RadzenButton>
+
+@code {
+    void EnviarHome()
+{
+        NM.NavigateTo("/", true);
+}
+}
+

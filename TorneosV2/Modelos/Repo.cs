@@ -104,6 +104,27 @@ namespace TorneosV2.Modelos
 
         // Aqui agregue las funciones que yo hice
 
+        public virtual async Task<ApiRespuesta<TEntity>> UpdateDiferente(TEntity entityToUpdate, string id)
+        {
+            ApiRespuesta<TEntity> resp = new() { Exito = false};
+            var dbSet = context.Set<TEntity>();
+            var existingEntity = await dbSet.FindAsync(id);
+
+            if (existingEntity != null)
+            {
+                context.Entry(existingEntity).CurrentValues.SetValues(entityToUpdate);
+                await context.SaveChangesAsync();
+                resp.Data = existingEntity;
+                resp.Exito = true;
+            }
+            else
+            {
+                resp.MsnError.Add("No se encotro el registro a actualizar");
+            }
+            return resp;
+
+        }
+
         public virtual async Task<IEnumerable<TEntity>> UpdatePlus(IEnumerable<TEntity> entitiesToUpdate)
         {
             var dbSet = context.Set<TEntity>();

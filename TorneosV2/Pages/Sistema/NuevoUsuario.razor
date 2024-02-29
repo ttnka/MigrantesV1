@@ -4,10 +4,6 @@
 @using TorneosV2.Modelos
 @using static TorneosV2.Modelos.MyFunc;
 
-@if(!EsNuevoUser && ElUser != null && ElUser.UserId.Length > 15 )
-{
-        <RadzenLabel> Mis Datos</RadzenLabel>
-}
 
 <RadzenTemplateForm @ref="UserForm" Data="@NuevoUser" Submit="@((AddUser args) => { AddUserNew(args); })">
     <RadzenFieldset Text="Nuevo Usuario" Style="width:80%">
@@ -89,10 +85,12 @@
                     <RadzenLabel Text="Organizacion" />
                 </div>
                 <div class="col-md-8">
+                    
                     <RadzenDropDown Name="OrgId" Data=OrgDrop @bind-Value=@NuevoUser.OrgId Change="CheckPass"
                                     ValueProperty="OrgId" TextProperty="Comercial" AllowClear="false"
                                     Style="width: 90%;" />
                     <RadzenLabel Style="color: red">@Msn</RadzenLabel>
+                    
                 </div>
             </div>
 
@@ -120,10 +118,12 @@
 
 
 @code {
+    
     void Cancelar()
     {
         NuevoUser = new("", "", "", "", "", "", "", "", "", 3, "", true);
         Msn = "";
+        
         StateHasChanged();
     }
 
@@ -158,7 +158,7 @@
                         txt += " " + m;
                     }
                 }
-             
+
                 Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
                 bitaT.OrgAdd(ElUser.Org);
                 await BitacoraAll(bitaT);

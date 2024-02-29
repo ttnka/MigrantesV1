@@ -1,18 +1,206 @@
-﻿@inherits UsuariosListBase
+﻿@inherits MisDatosBase
 @inject NotificationService NS
 @using TorneosV2.Modelos
 @using static TorneosV2.Modelos.MyFunc;
 
-@if(ElUser != null && ElUser.UserId.Length > 15 )
-{
-   <NuevoUsuario EsNuevoUser="false" />
-}
+<CascadingValue Value="ElUser" Name="ElUserAll">
+
+    @if (ElUser == null || ElUser.UserId.Length < 15)
+    {
+        <div class="spinner">Mis</div>
+    }
     else
+    {
+        <RadzenTemplateForm @ref="MDataForm" Data="@MDUser" Submit="@((MisDatosClass args) => { UpDateMisDatos(args); })">
+            <RadzenFieldset Text="-" Style="width:90%">
+
+                <div class="container-fluid" style="background: lightgray;">
+                    <div class="row" style="background:gray">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Mi Mail" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenLabel>@MDUser.Email</RadzenLabel>
+                            @if(ElUser.Nivel == 4)
+                            { 
+                                <RadzenTextBox style="width: 90%;" Name="Email" @bind-Value="MDUser.Email"
+                                                Placeholder="e-Mail" MaxLength="75" Change="CheckPass" />
+                                <RadzenRequiredValidator Component="Email" Text="Email es requerido" />
+                                <RadzenEmailValidator Component="Email" Text="Se requiere un Email Valido" />
+                                <RadzenLabel Style="color: white">@Msn</RadzenLabel>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Nuevo Password" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox style="width: 90%;" Name="Pass" @bind-Value="MDUser.Pass"
+                                            Placeholder="Password" MaxLength="75" Change="CheckPass" />
+                            @if (ElUser.Estado == 3)
+                                {
+                                    <br />
+                            <RadzenRequiredValidator Component="Pass" Text="Password es requerido" />
+                            }
+
+                        </div>
+                    </div>
+
+                        <div class="row" style="background:lightblue">
+                            <div class="col-md-4 align-items-center d-flex">
+                                <RadzenLabel Text="Repite Password" />
+                            </div>
+                            <div class="col-md-8">
+                                <RadzenTextBox style="width: 90%;" Name="ConfPass" @bind-Value="MDUser.ConfPass"
+                                                Placeholder="Repite tu Password" MaxLength="75" Change="CheckPass" />
+                                @if(ElUser.Estado == 3)
+                                {
+                                <br />
+                                <RadzenRequiredValidator Component="ConfPass" Text="Confirma es requerido" />
+                                }
+
+                            </div>
+                        </div>
+                            
+                    <div class="row" style="background:gray">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Mi Nombre" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenTextBox style="width: 90%;" Name="Nombre" MaxLength="25" Change="CheckPass"
+                                            @bind-Value="MDUser.Nombre" Placeholder="Nombr(s)" />
+                            <RadzenLengthValidator Component="Nombre" Min="1"
+                                                    Text="El Nombre(S) es NECESARIO!" Style="position: absolute" /><br />
+
+                            <RadzenTextBox style="width: 90%;" Name="Paterno" MaxLength="25" Change="CheckPass"
+                                            @bind-Value="MDUser.Paterno" Placeholder="Apellido Paterno" />
+                            <RadzenLengthValidator Component="Paterno" Min="1"
+                                                    Text="El apellido paterno es NECESARIO!" Style="position: absolute" /><br />
+
+                            <RadzenTextBox style="width: 90%;" Name="Materno" MaxLength="25"
+                                            @bind-Value="MDUser.Materno" Placeholder="Apellido Materno" />
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 align-items-center d-flex">
+                            <RadzenLabel Text="Organizacion" />
+                        </div>
+                        <div class="col-md-8">
+                            <RadzenLabel>@ElUser.Org.Comercial</RadzenLabel>        
+                            
+
+                        </div>
+                    </div>
+
+
+                    <div class="row" style="background:gray">
+                        <div class="col-md-4 align-items-center d-flex">
+                        </div>
+                        <div class="col-md-8">
+                            @if (Msn == "Ok")
+                            {
+                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                                Class="m-1" ButtonType="ButtonType.Submit" Disabled="BotonNuevo">
+                                    Actualizar
+                                </RadzenButton>
+                            }
+
+                            <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                            Click="Cancelar" />
+                            <RadzenLabel Style="color: white">@Msn</RadzenLabel>
+
+                        </div>
+                    </div>
+                </div>
+
+            </RadzenFieldset>
+        </RadzenTemplateForm>
+
+
+    }
+</CascadingValue>
+   
+@code
 {
+    void Cancelar()
+    {
+        Leer();
+        Msn = "";
 
-}
+        StateHasChanged();
+    }
 
-@code {
+    async Task UpDateMisDatos(MisDatosClass user)
+    {
+        try
+        {
+            Editando = !Editando;
+            BotonNuevo = true;
+            ApiRespValor cambioPassResp = new();
+
+            if (user.ConfPass.Length > 1)
+            {
+                cambioPassResp = await UpdatePass(user);
+            }
+
+            if (user.Email == ElUser.OldEmail && user.Nombre == ElUser.Nombre && user.Paterno == ElUser.Paterno &&
+                user.Materno == ElUser.Materno)
+                return;
+
+            int Edo = ElUser.Estado == 3 ? 1 : ElUser.Estado;
+            Z110_User UserUpdated = new(ElUser.UserId, user.Nombre, user.Paterno, user.Materno, ElUser.Nivel,
+                ElUser.OrgId, ElUser.OldEmail, Edo, ElUser.Status);
+            UserUpdated.OrgAdd(ElUser.Org);
+            ApiRespuesta<Z110_User> resultado = await UserRepo.UpdateDiferente(UserUpdated, ElUser.UserId);
+
+            string txt = resultado.Data.UserId; 
+
+            if (resultado.Exito)
+            {
+                ElUser = await UserRepo.GetById(txt);
+                txt = $"Mail: {resultado.Data.OldEmail}, ";
+                txt += $"pertenece a la organizacion: {resultado.Data.Org.Comercial}    ,  ";
+                txt += $"Nivel: {Niveles[resultado.Data.Nivel]}"; ;
+                ShowNotification(ElMsn("Ok", "Actualizando datos",
+                        $"Estamos actualizando tus datos {resultado.Data.Completo}!!! ", 0));
+                txt = $"{TBita}, Actualizando datos {resultado.Data.Completo} " + txt;
+
+                Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+                bitaT.OrgAdd(ElUser.Org);
+                await BitacoraAll(bitaT);
+
+            }
+            else
+            {
+                ShowNotification(ElMsn("Error", "Error",
+                            $"No pudo actualizarse los datos!!! {ElUser.Completo} ", 0));
+                txt = $"{TBita}, NO se actualizo los datos {ElUser.Completo} " + txt;
+
+                Z192_Logs logTemp = new(ElUser.UserId, txt, false);
+                await LogAll(logTemp);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            Z192_Logs logT = new(ElUser.UserId,
+                $"Error, No fue posible actualizar los datos del usuario, {TBita}, {ex}", true);
+            await LogAll(logT);
+        }
+        Leer();
+        BotonNuevo = false;
+        StateHasChanged();
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+
 
 }
 

@@ -1,8 +1,9 @@
 ﻿@page "/entrada"
 @page "/entrada/{UrlReturn}"
+@inject NotificationService NS
 @inherits EntradaBase
 
-<RadzenTemplateForm @ref="LoginForm" Data="@NuevoLogin" Submit="@((LoginUser arg) => { LogInTask(arg); })">
+<RadzenTemplateForm @ref="LoginForm" Data="@NuevoLogin" Submit="@((LoginUser arg) => { PassOk(arg); })">
     <RadzenFieldset Text="Indentificate" Style="width:80%">
         <div class="container-fluid" style="background: lightgray;">
 
@@ -24,14 +25,16 @@
             <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Password" />
+                    <button type="button" @onclick="PasswordVisibility" style="margin-top: 5px;">
+                        @((showPassword ? "Ocultar" : "Mostrar"))
+                    </button>
                 </div>
                 <div class="col-md-8">
 
                     <RadzenTextBox style="width: 90%;" Name="EMail" @bind-Value="NuevoLogin.Pass"
+                                   @bind-type="PasswordInputType"
                                    Placeholder="Password" MaxLength="75" Change="CheckPass" />
-                    <button type="button" @onclick="PasswordVisibility" style="margin-top: 5px;">
-                        @((showPassword ? "Ocultar" : "Mostrar") + " password")
-                    </button>
+                    
                 </div>
             </div>
 
@@ -46,18 +49,7 @@
                 </div>
             </div>
 
-            <div class="row" >
-                <div class="col-md-4 align-items-center d-flex">
-                    <RadzenLabel Text="Recordar me" />
-                </div>
-                <div class="col-md-8">
-                    <RadzenLabel>En este dispositivo por 30 dias -No</RadzenLabel>
-                    <RadzenSwitch @bind-Value="NuevoLogin.Recordar" Disabled="showRecordar" />
-                    <RadzenLabel>Si</RadzenLabel>
-                </div>
-            </div>
-
-            <div class="row" style="background:gray">
+            <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                 </div>
                 <div class="col-md-8">
@@ -73,14 +65,14 @@
                                   Click="Cancelar" />
 
                     <RadzenButton Icon="Home" ButtonStyle="ButtonStyle.Info" Class="m-1"
-                                  Click="(LoginUser arg) => { RecuperarTask(arg)" Disabled="showRecupera" >
+                                  Click="RecuperarTask" Disabled="showRecupera">
                         Recuperar mi Password!
                     </RadzenButton>
                 </div>
             </div>
         </div>
 
-</RadzenFieldset>
+    </RadzenFieldset>
 </RadzenTemplateForm>
 
 @code {
@@ -91,10 +83,23 @@
     private bool showRecupera = true;
     private bool showPassword = false;
     private string Msn = "";
+    private string PasswordInputType = "password";
 
-    private void PasswordVisibility ()
+    private void PasswordVisibility()
     {
         showPassword = !showPassword;
+        PasswordInputType = showPassword ? "text" : "password";
+
+    }
+
+    private async Task PassOk(LoginUser data)
+    {
+        bool sucess = await LogInTask(data);
+        if (sucess)
+        {
+            NM.NavigateTo(UrlReturn, true);
+        }
+
     }
 
     void CheckPass()
@@ -107,7 +112,7 @@
 
         showRecupera = false;
 
-        if (NuevoLogin.Pass.Length < 5 ) return;
+        if (NuevoLogin.Pass.Length < 5) return;
 
         showRecordar = false;
         Msn = "Ok";
@@ -122,5 +127,6 @@
     {
         NS.Notify(message);
     }
+
 }
 

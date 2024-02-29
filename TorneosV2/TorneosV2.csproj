@@ -12,6 +12,8 @@
   <ItemGroup>
     <None Remove="Modelos\" />
     <None Remove="Pages\Sistema\" />
+    <None Remove="Pages\Sistema\Mensajes\" />
+    <None Remove="Pages\WebApp\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -38,5 +40,7 @@
   <ItemGroup>
     <Folder Include="Modelos\" />
     <Folder Include="Pages\Sistema\" />
+    <Folder Include="Pages\Sistema\Mensajes\" />
+    <Folder Include="Pages\WebApp\" />
   </ItemGroup>
 </Project>

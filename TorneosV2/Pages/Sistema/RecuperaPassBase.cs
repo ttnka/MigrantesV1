@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Text;
-using MathNet.Numerics.Distributions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using NPOI.SS.Formula.Functions;
 using Radzen;
 using Radzen.Blazor;
 using TorneosV2.Data;
 using TorneosV2.Modelos;
+using static TorneosV2.Pages.Sistema.EntradaBase;
 
 namespace TorneosV2.Pages.Sistema
 {
-	public class EntradaBase : ComponentBase
+	public class RecuperaPassBase : ComponentBase 
 	{
-        public const string TBita = "Login Indentificate";
+        public const string TBita = "Recupera tu password";
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
         [Inject]
@@ -24,38 +23,11 @@ namespace TorneosV2.Pages.Sistema
         [Inject]
         public IEnviarMail SendMail { get; set; } = default!;
         
-        [Parameter]
-        public string UrlReturn { get; set; } = "/";
 
-        
-        public int Intento { get; set; } = 0;
-        public LoginUser NuevoLogin { get; set; } = new();
+        public Z110_User Usuario { get; set; } = default!;
+        public MailInfo RecuperaData { get; set; } = new();
+        public RadzenTemplateForm<MailInfo>? RecuperaForm { get; set; } = new RadzenTemplateForm<MailInfo>();
 
-        public RadzenTemplateForm<LoginUser>? LoginForm { get; set; } = new RadzenTemplateForm<LoginUser>();
-
-        protected async Task<bool> LogInTask(LoginUser data)
-        {
-            try
-            {
-                if (Intento > 3) return false; 
-                var resultado = await SManager.PasswordSignInAsync(
-                              data.Email, data.Pass, data.Recordar, false);
-
-                if (resultado.Succeeded)
-                {
-                    Intento = 0;
-                    return true;
-                }
-                Intento++;
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs logT = new("Sistema_user", $"No fue posible identificarse {TBita} {ex}", false);
-                await LogAll(logT);
-            }
-
-            return false;
-        }
 
         protected async Task RecuperarTask()
         {
@@ -63,40 +35,41 @@ namespace TorneosV2.Pages.Sistema
 
             try
             {
-                var user = await UManager.FindByEmailAsync(NuevoLogin.Email);
+                var user = await UManager.FindByEmailAsync(RecuperaData.EMail);
 
                 if (user != null)
                 {
                     avance += "Se encontro el usuario por mail, ";
-                    ElUser = await UserRepo.GetById(user!.Id);
-                    if (ElUser == null) return;
-
+                    Usuario = await UserRepo.GetById(user!.Id);
+                    
+                    if (Usuario == null) return;
+                    string t = Guid.NewGuid().ToString();
                     var code = await UManager.GeneratePasswordResetTokenAsync(user!);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callBackUrl = NM.ToAbsoluteUri($"/nuevopass?code={code}");
-                    avance += $"se genero codigo y pagina de recuperacion {callBackUrl}, ";
+                    var backUrl = NM.ToAbsoluteUri($"/nuevopass?c={code}&d={user.Id}&t={t}");
+                    avance += $"se genero codigo y pagina de recuperacion {backUrl}, ";
                     MailCampos mCs = new()
                     {
                         Titulo = $"Tenemos una solicitud de cambio de password dominio {Constantes.ElDominio} con tu e-mail!",
-                        Cuerpo = $"Hola {ElUser.Nombre}, <br />Soy el administrador de {Constantes.ElDominio}, y tenemos ",
+                        Cuerpo = $"Hola {Usuario.Nombre}, <br />Soy el administrador de {Constantes.ElDominio}, y tenemos ",
                     };
 
                     mCs.Cuerpo += $"una direccion para que cambies tu password: <br />";
                     mCs.Cuerpo += $"recuerda tu password deben ser 6 caracteres ";
-                    mCs.Cuerpo += $"utiliza una nueva palabra que contenga una letra mayuscula, una minuscula y un numero, <br />";                  
+                    mCs.Cuerpo += $"utiliza una nueva palabra que contenga una letra mayuscula, una minuscula y un numero, <br />";
                     mCs.Cuerpo += "Entra a nuestra pagina con esta liga ==>> ";
-                    mCs.Cuerpo += $"<a href=\"{Constantes.ElDominio}{callBackUrl}\"> abre nuestra pagina aqui</a> <== <br />";
+                    mCs.Cuerpo += $"<a href=\"{Constantes.ElDominio}{backUrl}\"> abre nuestra pagina aqui</a> <== <br />";
                     mCs.Cuerpo += $"si tienes dudas contactanos via Email {Constantes.DeMail01Soporte} <br /> <br />";
                     mCs.Cuerpo += $"Saludos del equipo de {Constantes.ElDominio}";
 
-                    mCs.ParaNombre.Add(ElUser.Completo);
-                    mCs.ParaEmail.Add(ElUser.OldEmail);
+                    mCs.ParaNombre.Add(Usuario.Completo);
+                    mCs.ParaEmail.Add(Usuario.OldEmail);
                     ApiRespuesta<MailCampos> enviado = await SendMail.EnviarMail(mCs, true);
                     avance += enviado.Exito ? "Se envio " : "No fue posible enviar ";
                     avance += $"un mail con la informacion del cambio password! ";
-                    
-                    Z190_Bitacora bitaT = new(ElUser.UserId, $"Se genero un cambio de password {TBita}", ElUser.OrgId);
-                    bitaT.OrgAdd(ElUser.Org);
+
+                    Z190_Bitacora bitaT = new(Usuario.UserId, $"Se genero un cambio de password {TBita}", Usuario.OrgId);
+                    bitaT.OrgAdd(Usuario.Org);
                     await BitacoraAll(bitaT);
                 }
             }
@@ -108,6 +81,7 @@ namespace TorneosV2.Pages.Sistema
             }
             NM.NavigateTo("/", true);
         }
+
 
         #region Usuario y Bitacora
 
@@ -185,12 +159,10 @@ namespace TorneosV2.Pages.Sistema
         }
         #endregion
 
-        public class LoginUser
+
+        public class MailInfo
         {
-            public string Email { get; set; } = "";
-            public string Pass { get; set; } = "";
-            public bool Recordar { get; set; } = false;
-            
+            public string EMail { get; set; } = "";
         }
 
     }

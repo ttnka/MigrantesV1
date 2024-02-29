@@ -1,0 +1,51 @@
+﻿@page "/indexapp"
+@inherits IndexApp2Base
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using TorneosV2.Pages.Sistema
+
+<PageTitle>Aplicacion</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <CascadingValue Value="ElUser" Name="ElUserAll">
+
+            @if (Leyendo || ElUser == null || ElUser.UserId.Length < 15)
+            {
+                <div class="spinner">IndexApp</div>
+            }
+            else
+            {
+                @if (ElUser.Estado == 3)
+                {
+                    <h2>Cambio de Password</h2>
+                    <RadzenLabel>Es necesario cambiar tu Password, recuerda Usar:</RadzenLabel><br />
+                    <RadzenLabel>Utilizar almenos una letra mayuscula, una letra miniscula y un numero.</RadzenLabel>
+                    <MisDatos />
+                }
+                else
+                {
+                        @if (ElUser.Nivel > 5)
+                            {<RadzenLink @href="/sistema">Administracion</RadzenLink>}
+                    
+                    <RadzenLabel>cuatro</RadzenLabel>
+
+                }
+                
+            }
+
+        </CascadingValue>
+    </Authorized>
+
+    <NotAuthorized>
+        <h1>Es necesario firmar para consultar esta pagina, </h1>
+        <RadzenLink Icon="accessibility" Path="Identity/Account/Login?ReturnUrl=/indexapp"
+                    Text="Identificate" />
+    </NotAuthorized>
+
+</AuthorizeView>
+
+@code {
+
+}
+

@@ -1,5 +1,20 @@
 ﻿@page "/"
+@inherits IndexBase
+@using TorneosV2.Pages.Sistema; 
 
 <PageTitle>Index</PageTitle>
 
 
+<AuthorizeView>
+    <Authorized>
+        <div>
+            <RadzenLink href="/indexapp">Web Aplicacion</RadzenLink>
+        </div> 
+            
+    </Authorized>
+
+    <NotAuthorized>
+        
+    </NotAuthorized>
+
+</AuthorizeView>
