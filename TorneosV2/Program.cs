@@ -60,6 +60,17 @@ builder.Services.AddTransient<Repo<Z172_Registros, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z190_Bitacora, ApplicationDbContext>>();
 builder.Services.AddTransient<Repo<Z192_Logs, ApplicationDbContext>>();
 
+builder.Services.AddTransient<Repo<Z300_Nombres, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z302_Contactos, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z304_Domicilio, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z309_Pariente, ApplicationDbContext>>();
+//builder.Services.AddTransient<Repo<Z310_Fisico, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z360_Solicitud, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z362_SolDet, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z368_Seguimiento, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z380_Servicios, ApplicationDbContext>>();
+builder.Services.AddTransient<Repo<Z390_Pais, ApplicationDbContext>>();
+
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();

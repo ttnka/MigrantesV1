@@ -1,0 +1,244 @@
+﻿
+@inherits ContactoListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
+
+@if (LosContactos != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="ContactosGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosContactos" TItem="Z302_Contactos"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 3)
+                {
+                <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Success" Click="InsertRow">
+                    Agrega dato
+                </RadzenButton>
+                }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Info" Click="LeerContactos">
+                Actualizar
+            </RadzenButton>
+            <RadzenLabel>@ElNombre.Completo</RadzenLabel>
+            @if (ElNombre.Apodo != null) {<RadzenLabel>@ElNombre.Apodo</RadzenLabel>}
+        </HeaderTemplate>
+
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Id"
+                                  Filterable="false" Width="50px">
+                <Template Context="datos">
+                    @(LosContactos.IndexOf(datos) + 1)
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Tipo" Filterable="true"
+                                  Width="125px" Property="Tipo">
+                <Template Context="datos">
+                    @datos.Tipo
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Tipo" Data=LosTipos @bind-Value=@datos.Tipo
+                                    ValueProperty="Titulo" TextProperty="Titulo" AllowClear="false"
+                                    Style="width: 90%;" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Valor" Filterable="true"
+                                  Width="150px" Property="Valor">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Valor </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Valor" @bind-Value="datos.Valor" Placeholder="Algun valor"
+                                   Style="width: 100%" />
+                    
+                    <RadzenLengthValidator Component="Valor" Min="1" Max="75"
+                                           Text="Algun dato es requerido en valor, con maximo 75 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Observaciones" Property="Observaciones"
+                                  Filterable="true" Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Observacion</RadzenLabel>
+                    
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextArea Name="Observacion" @bind-Value="datos.Observacion" Placeholder="Comentarios"
+                                   Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z302_Contactos" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                  Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado != 3)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        Contacto
+    </div>
+}
+
+
+@code {
+    Z302_Contactos contToInsert = new() { Estado = 3 };
+
+    async Task EditRow(Z302_Contactos cont)
+    {
+        await ContactosGrid!.EditRow(cont);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z302_Contactos cont)
+    {
+        if (cont == contToInsert) contToInsert = null!;
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        Editando = !Editando;
+        ApiRespuesta<Z302_Contactos> resultado = await Servicio(ServiciosTipos.Update, cont);
+
+        string txt = $"Valor: {cont.Valor} de {ElNombre.Completo} ";
+        txt += $"Observaciones: {cont.Observacion} ";
+        txt += cont.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Ok", "Actualizo",
+                $"Se actualizo la informacion del tipo {cont.Tipo} ", 0));
+            txt = $"{TBita}, Se actualizo la informacion de tipo {cont.Tipo} ";
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error No Se actualizo el tipo {cont.Tipo}";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 4000));
+            txt = $"{TBita}, No se actualizo un registro de nombre" + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, false);
+            await LogAll(logTemp);
+            await ContactosGrid!.Reload();
+        }
+    }
+
+    async Task SaveRow(Z302_Contactos cont)
+    {
+        await ContactosGrid!.UpdateRow(cont);
+    }
+
+    void CancelEdit(Z302_Contactos cont)
+    {
+        if (cont == contToInsert) contToInsert = null!;
+
+        Editando = !Editando;
+        ContactosGrid!.CancelEditRow(cont);
+    }
+
+    async Task InsertRow()
+    {
+        contToInsert = new() { Estado = 3 };
+        Editando = !Editando;
+        await ContactosGrid!.InsertRow(contToInsert);
+    }
+
+    async void OnCreateRow(Z302_Contactos cont)
+    {
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        if (cont == contToInsert) contToInsert = null!;
+
+        Editando = !Editando;
+        ApiRespuesta<Z302_Contactos> resultado = await Servicio(ServiciosTipos.Insert, cont);
+
+        string txt = $"Valor: {cont.Valor} de {ElNombre.Completo} ";
+        txt += $"Observaciones: {cont.Observacion} ";
+        txt += cont.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Exito", "Nuevo dato de contacto",
+                $"Se creo un nuevo dato de contacto {cont.Tipo} ", 0));
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error NO se agrego un nuevo dato {cont.Tipo}    ";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 0));
+            txt = $"{TBita}, No se creo un nuevo tipo de dato " + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+            await LogAll(logTemp);
+            await ContactosGrid!.Reload();
+        }
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}

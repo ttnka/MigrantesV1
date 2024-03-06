@@ -22,10 +22,17 @@ namespace TorneosV2.Pages.Sistema
         public UserManager<IdentityUser> UManager { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
+        [Inject]
+        public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
+
         [Parameter]
         public string Code { get; set; } = "Vacio";
+        [Parameter]
+        public string UserId { get; set; } = "Vacio";
+        [Parameter]
+        public string T { get; set; } = "Vacio";
         public PassClase PassData { get; set; } = new();
-
+        public IdentityUser Usuario { get; set; } = default!;
         protected string Msn { get; set; } = "";
         protected bool Primera { get; set; } = true;
         public RadzenTemplateForm<PassClase>? PassForm { get; set; } = new RadzenTemplateForm<PassClase>();
@@ -35,24 +42,34 @@ namespace TorneosV2.Pages.Sistema
             if (Primera)
             {
                 Primera = false;
-                if (Code == "Vacio" || Code.Length < 10) NM.NavigateTo("/", true);
+                
             }
+            
+        }
+
+        protected override async Task OnParametersSetAsync()
+        {
+            if (Code == null || Code == "Vacio" || Code.Length < 10 ||
+                    UserId == null || UserId == "Vacio" || UserId.Length < 10) NM.NavigateTo("/", true);
+            Usuario = await UManager.FindByIdAsync(UserId);
+            if (Usuario == null) NM.NavigateTo("/", true);
+
+            PassData.Email = Usuario!.Email!;
         }
 
         public async Task PassF(PassClase data)
         {
             try
             {
-                var Usuario = await UManager.FindByEmailAsync(PassData.Email);
-                if (Usuario == null) NM.NavigateTo("/", true);
-
                 string ElCode = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
-                
-                var resp = await UManager.ResetPasswordAsync(Usuario!, ElCode, PassData.Pass);
+                var resp = await UManager.ResetPasswordAsync(Usuario!, ElCode, data.Pass);
                 if (resp.Succeeded)
                 {
                     Z110_User elUserT = await UserRepo.GetById(Usuario!.Id);
                     Z190_Bitacora bitT = new(elUserT.UserId, $"Se cambio de password {TBita}", elUserT.OrgId);
+                    Z100_Org orgTmp = await OrgRepo.GetById(elUserT.OrgId);
+                    bitT.OrgAdd(orgTmp);
+                    await BitacoraAll(bitT);
                 }
                 else
                 {

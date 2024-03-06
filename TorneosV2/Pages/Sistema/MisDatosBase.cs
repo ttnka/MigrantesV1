@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
@@ -77,6 +78,8 @@ namespace TorneosV2.Pages.Sistema
 
                 var code = await UManager.GeneratePasswordResetTokenAsync(userTmp);
                 //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                await Task.Delay(100);
 
                 var cambio = await UManager.ResetPasswordAsync(userTmp, code, data.Pass);
                 if (cambio.Succeeded)
@@ -219,6 +222,7 @@ namespace TorneosV2.Pages.Sistema
             public string ConfPass { get; set; } = "";
         }
 
+        
     }
 }
 

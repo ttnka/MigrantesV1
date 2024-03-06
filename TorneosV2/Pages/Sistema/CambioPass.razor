@@ -1,24 +1,19 @@
-﻿@page "/cambio"
-@page "/cambio/{code}"
+﻿@page "/cambiopass"
+@page "/cambiopass/{code}/{userId}/{t}"
+@inject NotificationService NS
 @inherits CambioPassBase
 
 
-<RadzenTemplateForm @ref="PassForm" Data="@PassData" Submit="@((PassClase arg) => { PassF(arg); })">
+<RadzenTemplateForm @ref="PassForm" Data="@PassData" Submit="@((PassClase arg) => { PassFInicio(arg); })">
     <RadzenFieldset Text="Indentificate" Style="width:80%">
         <div class="container-fluid" style="background: lightgray;">
 
-            <div class="row" >
+            <div class="row">
                 <div class="col-md-4 align-items-center d-flex">
                     <RadzenLabel Text="Mail" />
                 </div>
                 <div class="col-md-8">
-
-                    <RadzenTextBox style="width: 90%;" Name="EMail" @bind-Value="PassData.Email"
-                                   Placeholder="e-Mail" MaxLength="75" Change="CheckPass" />
-                    <RadzenRequiredValidator Component="EMail" Text="Email es requerido" />
-                    <RadzenEmailValidator Component="EMail" Text="Se requiere un Email Valido" />
-
-
+                    <RadzenLabel>@PassData.Email</RadzenLabel>
                 </div>
             </div>
 
@@ -30,7 +25,7 @@
 
                     <RadzenTextBox style="width: 90%;" Name="Pass" @bind-Value="PassData.Pass"
                                    Placeholder="Nuevo password" MaxLength="75" Change="CheckPass" />
-                    <RadzenRequiredValidator Component="pass" Text="Password es requerido" />
+                    <RadzenRequiredValidator Component="Pass" Text="Password es requerido" />
 
                 </div>
             </div>
@@ -43,7 +38,7 @@
 
                     <RadzenTextBox style="width: 90%;" Name="Confirm" @bind-Value="PassData.Confirm"
                                    Placeholder="Repite el password" MaxLength="75" Change="CheckPass" />
-                    <RadzenRequiredValidator Component="confirm" Text="Repetir el password es requerido" />
+                    <RadzenRequiredValidator Component="Confirm" Text="Repetir el password es requerido" />
 
                 </div>
             </div>
@@ -73,12 +68,22 @@
 @code {
 
     private bool BotonNuevo = false;
-    
+
+    public async Task PassFInicio(PassClase data)
+    {
+
+        ShowNotification(ElMsn("Info",
+            "Estamos trabajando", "Dame un minuto, Estamos actualizando tu Password!", 0));
+        await PassF(data);
+    }
+
+
     void CheckPass()
     {
-        Msn = "";
-        if (PassData.Pass.Length < 6 || PassData.Confirm.Length < 6 ) return;
         
+        Msn = "";
+        if (PassData.Pass.Length < 6 || PassData.Confirm.Length < 6) return;
+
 
         string[] Prohibido = { "password", "contraseña", "123", "aaa", "dios" };
         bool IsMin = false;
@@ -104,6 +109,10 @@
     void Cancelar()
     {
         PassData = new();
+    }
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
     }
 }
 

@@ -140,6 +140,34 @@ namespace TorneosV2.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Nombres",
+                columns: table => new
+                {
+                    NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Apodo = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Nombre = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Paterno = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Materno = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Sexo = table.Column<string>(type: "varchar(1)", maxLength: 1, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Nacimiento = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Nacionalidad = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Nombres", x => x.NombreId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Organizaciones",
                 columns: table => new
                 {
@@ -162,6 +190,70 @@ namespace TorneosV2.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Organizaciones", x => x.OrgId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Paises",
+                columns: table => new
+                {
+                    PaisId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Clave = table.Column<string>(type: "varchar(5)", maxLength: 5, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Oficial = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Corto = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Telefono = table.Column<string>(type: "varchar(5)", maxLength: 5, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Paises", x => x.PaisId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Registros",
+                columns: table => new
+                {
+                    RegistroId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Fecha = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Registro = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Registros", x => x.RegistroId);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Servicios",
+                columns: table => new
+                {
+                    ServicioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Clave = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Titulo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Tipo = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observaciones = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Servicios", x => x.ServicioId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -319,6 +411,62 @@ namespace TorneosV2.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "Contactos",
+                columns: table => new
+                {
+                    ContactoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Tipo = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Valor = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observacion = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contactos", x => x.ContactoId);
+                    table.ForeignKey(
+                        name: "FK_Contactos_Nombres_NombreId",
+                        column: x => x.NombreId,
+                        principalTable: "Nombres",
+                        principalColumn: "NombreId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Parientes",
+                columns: table => new
+                {
+                    ContactoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ParienteId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Parentesco = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Parientes", x => x.ContactoId);
+                    table.ForeignKey(
+                        name: "FK_Parientes_Nombres_NombreId",
+                        column: x => x.NombreId,
+                        principalTable: "Nombres",
+                        principalColumn: "NombreId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "Bitacora",
                 columns: table => new
                 {
@@ -376,6 +524,180 @@ namespace TorneosV2.Migrations
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
+            migrationBuilder.CreateTable(
+                name: "Domicilios",
+                columns: table => new
+                {
+                    ContactoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PaisId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Edo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Municipio = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Ciudad = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Colonia = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Calle = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observaciones = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Domicilios", x => x.ContactoId);
+                    table.ForeignKey(
+                        name: "FK_Domicilios_Nombres_NombreId",
+                        column: x => x.NombreId,
+                        principalTable: "Nombres",
+                        principalColumn: "NombreId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Domicilios_Paises_PaisId",
+                        column: x => x.PaisId,
+                        principalTable: "Paises",
+                        principalColumn: "PaisId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Archivos",
+                columns: table => new
+                {
+                    FileId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Fecha = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    RegistroId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Tipo = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Folder = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Archivo = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Titulo = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Archivos", x => x.FileId);
+                    table.ForeignKey(
+                        name: "FK_Archivos_Registros_RegistroId",
+                        column: x => x.RegistroId,
+                        principalTable: "Registros",
+                        principalColumn: "RegistroId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Solicitudes",
+                columns: table => new
+                {
+                    ContactoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Fecha = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    ServicioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observaciones = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Solicitudes", x => x.ContactoId);
+                    table.ForeignKey(
+                        name: "FK_Solicitudes_Servicios_ServicioId",
+                        column: x => x.ServicioId,
+                        principalTable: "Servicios",
+                        principalColumn: "ServicioId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Seguimientos",
+                columns: table => new
+                {
+                    SeguimientoId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    DetalleId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Responsable = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observacion = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    SolicitudContactoId = table.Column<string>(type: "varchar(50)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Seguimientos", x => x.SeguimientoId);
+                    table.ForeignKey(
+                        name: "FK_Seguimientos_Nombres_NombreId",
+                        column: x => x.NombreId,
+                        principalTable: "Nombres",
+                        principalColumn: "NombreId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Seguimientos_Solicitudes_SolicitudContactoId",
+                        column: x => x.SolicitudContactoId,
+                        principalTable: "Solicitudes",
+                        principalColumn: "ContactoId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "SolDetalles",
+                columns: table => new
+                {
+                    SolDetId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    SolicitudId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SolDetalles", x => x.SolDetId);
+                    table.ForeignKey(
+                        name: "FK_SolDetalles_Nombres_NombreId",
+                        column: x => x.NombreId,
+                        principalTable: "Nombres",
+                        principalColumn: "NombreId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SolDetalles_Solicitudes_SolicitudId",
+                        column: x => x.SolicitudId,
+                        principalTable: "Solicitudes",
+                        principalColumn: "ContactoId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Archivos_RegistroId",
+                table: "Archivos",
+                column: "RegistroId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -419,9 +741,54 @@ namespace TorneosV2.Migrations
                 column: "OrgId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Contactos_NombreId",
+                table: "Contactos",
+                column: "NombreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Domicilios_NombreId",
+                table: "Domicilios",
+                column: "NombreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Domicilios_PaisId",
+                table: "Domicilios",
+                column: "PaisId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GruposDet_GrupoId",
                 table: "GruposDet",
                 column: "GrupoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Parientes_NombreId",
+                table: "Parientes",
+                column: "NombreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seguimientos_NombreId",
+                table: "Seguimientos",
+                column: "NombreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Seguimientos_SolicitudContactoId",
+                table: "Seguimientos",
+                column: "SolicitudContactoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SolDetalles_NombreId",
+                table: "SolDetalles",
+                column: "NombreId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SolDetalles_SolicitudId",
+                table: "SolDetalles",
+                column: "SolicitudId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Solicitudes_ServicioId",
+                table: "Solicitudes",
+                column: "ServicioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_OrgId",
@@ -432,6 +799,9 @@ namespace TorneosV2.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Archivos");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -454,13 +824,31 @@ namespace TorneosV2.Migrations
                 name: "Configuraciones");
 
             migrationBuilder.DropTable(
+                name: "Contactos");
+
+            migrationBuilder.DropTable(
+                name: "Domicilios");
+
+            migrationBuilder.DropTable(
                 name: "GruposDet");
 
             migrationBuilder.DropTable(
                 name: "LogsBitacora");
 
             migrationBuilder.DropTable(
+                name: "Parientes");
+
+            migrationBuilder.DropTable(
+                name: "Seguimientos");
+
+            migrationBuilder.DropTable(
+                name: "SolDetalles");
+
+            migrationBuilder.DropTable(
                 name: "Usuarios");
+
+            migrationBuilder.DropTable(
+                name: "Registros");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -469,10 +857,22 @@ namespace TorneosV2.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
+                name: "Paises");
+
+            migrationBuilder.DropTable(
                 name: "Grupos");
 
             migrationBuilder.DropTable(
+                name: "Nombres");
+
+            migrationBuilder.DropTable(
+                name: "Solicitudes");
+
+            migrationBuilder.DropTable(
                 name: "Organizaciones");
+
+            migrationBuilder.DropTable(
+                name: "Servicios");
         }
     }
 }

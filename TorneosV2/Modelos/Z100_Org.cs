@@ -32,18 +32,25 @@ namespace TorneosV2.Modelos
         }
 
         public virtual ICollection<Z110_User> Users { get; set; } = new List<Z110_User>();
-        public virtual ICollection<Z190_Bitacora> Bitacoras { get; set; } = new List<Z190_Bitacora>();
-
         public void UserAdd(Z110_User user)
         {
             Users.Add(user);
             user.Org = this;
         }
+
+        public virtual ICollection<Z190_Bitacora> Bitacoras { get; set; } = new List<Z190_Bitacora>();
         public void BitacoraAdd(Z190_Bitacora bita)
         {
             Bitacoras.Add(bita);
             bita.Org = this;
         }
+        public virtual ICollection<Z380_Servicios> Servicios { get; set; } = new List<Z380_Servicios>();
+        public void ServicioAdd(Z380_Servicios servicio)
+        {
+            Servicios.Add(servicio);
+            servicio.Org = this;
+        }
+
     }
 }
 

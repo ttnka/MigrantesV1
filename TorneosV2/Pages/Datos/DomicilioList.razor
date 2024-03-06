@@ -1,0 +1,309 @@
+﻿@inherits DomicilioListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
+
+
+@if (LosDomicilios != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="DomiciliosGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosDomicilios" TItem="Z304_Domicilio"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 3)
+            {
+                <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Success" Click="InsertRow">
+                    Agrega dato
+                </RadzenButton>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Info" Click="LeerDomicilios">
+                Actualizar
+            </RadzenButton>
+            <RadzenLabel>@ElNombre.Completo</RadzenLabel>
+            @if (ElNombre.Apodo != null)
+            {<RadzenLabel>@ElNombre.Apodo</RadzenLabel>}
+        </HeaderTemplate>
+
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Id"
+                                  Filterable="false" Width="50px">
+                <Template Context="datos">
+                    @(LosDomicilios.IndexOf(datos) + 1)
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Pais" Filterable="true"
+                                  Width="125px" Property="Pais">
+                <Template Context="datos">
+                    @datos.Pais
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Pais" Data=LosPaises @bind-Value=@datos.Pais
+                                    ValueProperty="PaisId" TextProperty="ClaveCorto" AllowClear="false"
+                                    Style="width: 90%;" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Estado" Filterable="true"
+                                  Width="150px" Property="Estado">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Edo </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Edo" @bind-Value="datos.Edo" Placeholder="Estado"
+                                   Style="width: 100%" />
+
+                    <RadzenLengthValidator Component="Edo" Min="0" Max="50"
+                                           Text="Estado con maximo 50 caracteres!" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Municipio" Filterable="true"
+                                  Width="150px" Property="Municipio">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Municipio </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Municipio" @bind-Value="datos.Municipio" Placeholder="Municipio"
+                                   Style="width: 100%" />
+
+                    <RadzenLengthValidator Component="Edo" Min="0" Max="50"
+                                           Text="Estado con maximo 50 caracteres!" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Ciudad" Filterable="true"
+                                  Width="150px" Property="Ciudad">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Ciudad </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Ciudad" @bind-Value="datos.Ciudad" Placeholder="Ciudad"
+                                   Style="width: 100%" />
+
+                    <RadzenLengthValidator Component="Ciudad" Min="0" Max="50"
+                                           Text="Ciudad con maximo 50 caracteres!" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Colonia" Filterable="true"
+                                  Width="150px" Property="Colonia">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Colonia </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Colonia" @bind-Value="datos.Colonia" Placeholder="Colonia"
+                                   Style="width: 100%" />
+
+                    <RadzenLengthValidator Component="Colonia" Min="0" Max="50"
+                                           Text="Estado con maximo 75 caracteres!" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Calle y numero" Filterable="true"
+                                  Width="150px" Property="Calle">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Calle </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Calle" @bind-Value="datos.Calle" Placeholder="Calle y numero"
+                                   Style="width: 100%" />
+
+                    <RadzenLengthValidator Component="Edo" Min="1" Max="50"
+                                           Text="Calle con maximo 50 caracteres!" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Observaciones" Property="Observaciones"
+                                  Filterable="true" Width="80px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Observaciones</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextArea Name="Observacion" @bind-Value="datos.Observaciones" Placeholder="Comentarios"
+                                    Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z304_Domicilio" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                  Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado != 3)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        Contacto
+    </div>
+}
+
+
+@code {
+    Z304_Domicilio domToInsert = new() { Estado = 3 };
+
+    async Task EditRow(Z304_Domicilio dom)
+    {
+        await DomiciliosGrid!.EditRow(dom);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z304_Domicilio dom)
+    {
+        if (dom == domToInsert) domToInsert = null!;
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        Editando = !Editando;
+        ApiRespuesta<Z304_Domicilio> resultado = await Servicio(ServiciosTipos.Update, dom);
+
+        string txt = $"Estado: {dom.Estado}, municipio: {dom.Municipio}, ciudad: {dom.Ciudad} ";
+        txt += $"Colonia: {dom.Colonia}, calle y numero: {dom.Calle}, Observaciones: {dom.Observaciones} ";
+        txt += dom.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Ok", "Actualizo",
+                $"Se actualizo la informacion del domicilio {dom.Calle} ", 0));
+            txt = $"{TBita}, Se actualizo la informacion del domicilio: pais {dom.Pais} ";
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error No Se actualizo el domicilio {dom.Calle}, el nombre: {ElNombre.Completo}";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 4000));
+            txt = $"{TBita}, No se actualizo un registro del domicilio " + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, false);
+            await LogAll(logTemp);
+            await DomiciliosGrid!.Reload();
+        }
+    }
+
+    async Task SaveRow(Z304_Domicilio dom)
+    {
+        await DomiciliosGrid!.UpdateRow(dom);
+    }
+
+    void CancelEdit(Z304_Domicilio dom)
+    {
+        if (dom == domToInsert) domToInsert = null!;
+
+        Editando = !Editando;
+        DomiciliosGrid!.CancelEditRow(dom);
+    }
+
+    async Task InsertRow()
+    {
+        domToInsert = new() { Estado = 3 };
+        Editando = !Editando;
+        await DomiciliosGrid!.InsertRow(domToInsert);
+    }
+
+    async void OnCreateRow(Z304_Domicilio dom)
+    {
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        if (dom == domToInsert) domToInsert = null!;
+
+        Editando = !Editando;
+        ApiRespuesta<Z304_Domicilio> resultado = await Servicio(ServiciosTipos.Insert, dom);
+
+        string txt = $"Estado: {dom.Estado}, municipio: {dom.Municipio}, ciudad: {dom.Ciudad} ";
+        txt += $"Colonia: {dom.Colonia}, calle y numero: {dom.Calle}, Observaciones: {dom.Observaciones} ";
+        txt += dom.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Exito", "Nuevo dato de domicilio",
+                $"Se agrego un dato de domicilio {dom.Calle} ", 0));
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error NO se agrego un nuevo domicilio {dom.Calle} del nombre: {ElNombre.Completo} ";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 0));
+            txt = $"{TBita}, No se agrego un nuevo domicilio " + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+            await LogAll(logTemp);
+            await DomiciliosGrid!.Reload();
+        }
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}

@@ -2,6 +2,9 @@
 @inherits IndexSistemaBase
 @inject NotificationService NS
 @using TorneosV2.Modelos
+@using TorneosV2.Pages.Configuracion;
+@using TorneosV2.Pages.Datos
+
 
 <h3>Administracion DashBoard </h3>
 <AuthorizeView>
@@ -18,11 +21,24 @@
             {
                 <RadzenTabs>
                     <Tabs>
+                        <RadzenTabsItem Text="Nombres">
+                            <NombresList />
+                        </RadzenTabsItem>
+
                         <RadzenTabsItem Text="Organizaciones">
                             <OrgList />
                         </RadzenTabsItem>
                         <RadzenTabsItem Text="Usuarios">
                             <UsuariosList SoloLista="false" />
+                        </RadzenTabsItem>
+
+                        <RadzenTabsItem Text="Paises">
+                            <PaisesList />
+
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="Servicios">
+                            <ServiciosList />
+
                         </RadzenTabsItem>
                     </Tabs>
                 </RadzenTabs>

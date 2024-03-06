@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TorneosV2.Data;
 
@@ -10,9 +11,11 @@ using TorneosV2.Data;
 namespace TorneosV2.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240301025355_Inicial")]
+    partial class Inicial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -793,11 +796,6 @@ namespace TorneosV2.Migrations
                     b.Property<string>("Observaciones")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("OrgId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
                     b.Property<bool>("Status")
                         .HasColumnType("tinyint(1)");
 
@@ -812,8 +810,6 @@ namespace TorneosV2.Migrations
                         .HasColumnType("varchar(50)");
 
                     b.HasKey("ServicioId");
-
-                    b.HasIndex("OrgId");
 
                     b.ToTable("Servicios");
                 });
@@ -836,9 +832,6 @@ namespace TorneosV2.Migrations
 
                     b.Property<int>("Estado")
                         .HasColumnType("int");
-
-                    b.Property<bool>("Favorito")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Oficial")
                         .IsRequired()
@@ -1095,22 +1088,9 @@ namespace TorneosV2.Migrations
                     b.Navigation("Solicitud");
                 });
 
-            modelBuilder.Entity("TorneosV2.Modelos.Z380_Servicios", b =>
-                {
-                    b.HasOne("TorneosV2.Modelos.Z100_Org", "Org")
-                        .WithMany("Servicios")
-                        .HasForeignKey("OrgId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Org");
-                });
-
             modelBuilder.Entity("TorneosV2.Modelos.Z100_Org", b =>
                 {
                     b.Navigation("Bitacoras");
-
-                    b.Navigation("Servicios");
 
                     b.Navigation("Users");
                 });

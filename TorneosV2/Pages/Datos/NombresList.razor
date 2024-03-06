@@ -1,0 +1,319 @@
+﻿@inherits NombresListBase  
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using TorneosV2.Pages.Datos 
+@using static TorneosV2.Modelos.MyFunc;
+
+
+@if (LosNombres != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="NombresGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosNombres" TItem="Z300_Nombres"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 3)
+            {
+                <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Success" Click="InsertRow">
+                    Agregar Nombre
+                </RadzenButton>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Info" Click="LeerNombres">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <Template Context="datos1">
+            
+                <RadzenTabs>
+                    <Tabs>
+                        <RadzenTabsItem Text="Contacto">
+                            <ContactoList ElNombre=@datos1 />
+                        </RadzenTabsItem>
+
+                        <RadzenTabsItem Text="Domicilio">
+                            <DomicilioList ElNombre=datos1 />
+                            
+                        </RadzenTabsItem>
+
+                    </Tabs>
+                </RadzenTabs>
+            
+        </Template>
+
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+            <RadzenDataGridColumn TItem="Z300_Nombres" Title="Id"
+                                  Filterable="false" Width="50px">
+                <Template Context="datos">
+                    @(LosNombres.IndexOf(datos) + 1)
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z300_Nombres" Title="Nombre" Filterable="true"
+                                  Width="125px" Property="Nombre">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Nombre </RadzenLabel>
+                    @if (datos.Apodo != null)
+                    {
+                        <RadzenLabel>@($"'{datos.Apodo}'")</RadzenLabel>
+                    }
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Nombre" @bind-Value="datos.Nombre" Placeholder="Nombre(s)"
+                                   Style="width: 100%" />
+                    <RadzenTextBox Name="Apodo" @bind-Value="datos.Apodo" Placeholder="Apodo"
+                                   Style="width: 100%" /> <br />
+                    <RadzenLengthValidator Component="Nombre" Min="2" Max="25"
+                                           Text="El Nombre(s) son necesario y al menos son 2 a 25 caracteres" />
+                    <RadzenLengthValidator Component="Apodo" Min="0" Max="20"
+                                           Text="El Nombre(s) son necesario y al menos son 2 a 25 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z300_Nombres" Title="Apellidos" Filterable="true"
+                                  Width="125px" Property="Paterno">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Paterno @datos.Materno</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Paterno" @bind-Value="datos.Paterno" Placeholder="Apellido Paterno"
+                                   Style="width: 100%" />
+                    <RadzenTextBox Name="Materno" @bind-Value="datos.Materno" Placeholder="Apellido Materno"
+                                   Style="width: 100%" /> <br />
+                    <RadzenLengthValidator Component="Paterno" Min="1" Max="25"
+                                           Text="El apellido paterno son necesario y al menos son 1 a 25 caracteres" />
+                    <RadzenLengthValidator Component="Materno" Min="0" Max="25"
+                                           Text="El apellido materno es maximo 25 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z300_Nombres" Title="Genero" Property="Sexo"
+                                  Filterable="true" Width="80px">
+                <Template Context="datos">
+                    @if (Sexos.Any(x => x.Key == datos.Sexo))
+                    {
+                        <RadzenLabel> @Sexos.FirstOrDefault(x => x.Key == datos.Sexo).Value!</RadzenLabel>
+                    }
+                    else
+                    {
+                        <RadzenLabel>Sin Datos</RadzenLabel>
+                    }
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Sexo" Data=Sexos @bind-Value=@datos.Sexo
+                                    ValueProperty="Key" TextProperty="Value" AllowClear="false"
+                                    Style="width: 90%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z300_Nombres" Title="Nacimiento" Property="Nacimiento"
+                                  Filterable="true" Resizable="true" Width="80px">
+
+                <Template Context="datos">
+                    <RadzenLabel>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", datos.Nacimiento)}")</RadzenLabel>
+
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenDatePicker @bind-Value="datos.Nacimiento"></RadzenDatePicker>
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z300_Nombres" Title="Nacionalidad" Property="Nacionalidad"
+                                  Filterable="true" Width="80px">
+                <Template Context="datos">
+                    @if (Nacionalidades.Any(x => x.Clave == datos.Nacionalidad))
+                    {
+                        <RadzenLabel> @Nacionalidades.FirstOrDefault(x => x.Clave == datos.Nacionalidad)</RadzenLabel>
+                    }
+                    else
+                    {
+                        <RadzenLabel>Sin Datos</RadzenLabel>
+                    }
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Nacionalidad" Data=Nacionalidades @bind-Value=@datos.Nacionalidad
+                                    ValueProperty="Clave" TextProperty="Corto" AllowClear="false"
+                                    Style="width: 90%;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z300_Nombres" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                  Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado != 3)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        Nombre
+    </div>
+}
+
+
+@code {
+    Z300_Nombres nombToInsert = new() { Estado = 3 };
+
+    async Task EditRow(Z300_Nombres nom)
+    {
+        await NombresGrid!.EditRow(nom);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z300_Nombres nom)
+    {
+        if (nom == nombToInsert) nombToInsert = null!;
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        Editando = !Editando;
+        ApiRespuesta<Z300_Nombres> resultado = await Servicio(ServiciosTipos.Update, nom);
+
+        string txt = nom.Apodo == null ? "" :  $"apodo:' {nom.Apodo} '";
+        txt += $" sexo: ";
+        txt += Sexos.Any(x => x.Key == nom.Sexo) ? Sexos.FirstOrDefault(x => x.Key == nom.Sexo).Value : "Sin info";
+        txt += $" nacimiento: {@MyFunc.FormatoFecha("DD/MMM/AA", nom.Nacimiento)} ";
+        txt += " nacionalidad: " + Nacionalidades.FirstOrDefault(x => x.Clave == nom.Nacionalidad)!.Corto;
+        txt += nom.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Ok", "Actualizo",
+                $"Se actualizo la informacion del nombre {nom.Completo} ", 0));
+            txt = $"{TBita}, Se actualizo el nombre de {nom.Completo} ";
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error No Se actualizo el nombre {nom.Completo}";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 4000));
+            txt = $"{TBita}, No se actualizo un registro de nombre" + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, false);
+            await LogAll(logTemp);
+            await NombresGrid!.Reload();
+        }
+    }
+
+    async Task SaveRow(Z300_Nombres nom)
+    {
+        await NombresGrid!.UpdateRow(nom);
+    }
+
+    void CancelEdit(Z300_Nombres nom)
+    {
+        if (nom == nombToInsert) nombToInsert = null!;
+
+        Editando = !Editando;
+        NombresGrid!.CancelEditRow(nom);
+    }
+
+    async Task InsertRow()
+    {
+        nombToInsert = new() { Estado = 3 };
+        Editando = !Editando;
+        await NombresGrid!.InsertRow(nombToInsert);
+    }
+
+    async void OnCreateRow(Z300_Nombres nom)
+    {
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        if (nom == nombToInsert) nombToInsert = null!;
+
+        Editando = !Editando;
+        ApiRespuesta<Z300_Nombres> resultado = await Servicio(ServiciosTipos.Insert, nom);
+
+        string txt = nom.Apodo == null ? "" : $"apodo:' {nom.Apodo} '";
+        txt += $" sexo: ";
+        txt += Sexos.Any(x => x.Key == nom.Sexo) ? Sexos.FirstOrDefault(x => x.Key == nom.Sexo).Value : "Sin info";
+        txt += $" nacimiento: {@MyFunc.FormatoFecha("DD/MMM/AA", nom.Nacimiento)} ";
+        txt += " nacionalidad: " + Nacionalidades.FirstOrDefault(x => x.Clave == nom.Nacionalidad)!.Corto;
+        txt += nom.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Exito", "Nuevo nombre",
+                $"Se creo un nuevo nombre {nom.Completo}", 0));
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error NO se creo un nuevo nombre {nom.Completo}    ";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 0));
+            txt = $"{TBita}, No se creo un nuevo nombre " + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+            await LogAll(logTemp);
+            await NombresGrid!.Reload();
+        }
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}
+

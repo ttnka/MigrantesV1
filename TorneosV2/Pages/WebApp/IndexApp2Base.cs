@@ -147,7 +147,7 @@ namespace TorneosV2.Pages.WebApp
             }
             catch (Exception ex)
             {
-                Z192_Logs LogT = new(ElUser.UserId,
+                Z192_Logs LogT = new("Sistema_user",
                     $"Error al intentar leer EL USER USUARIO, {TBita},{ex}", true);
                 await LogAll(LogT);
 

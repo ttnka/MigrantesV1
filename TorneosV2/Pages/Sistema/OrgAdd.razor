@@ -54,11 +54,9 @@
                     <RadzenLabel Text="Tipo de Empresa" />
                 </div>
                 <div class="col-md-8">
-
                     <RadzenDropDown Name="Tipo" Data=TipoOrgs @bind-Value=@OrgNew.Tipo
                                     ValueProperty="Key" TextProperty="Value" AllowClear="true"
                                     Style="width: 90%;" />
-
                 </div>
             </div>
             @if (OrgNew.Tipo == "Cliente")
@@ -154,7 +152,7 @@
             org.Mail = org.Mail.ToLower();
             org.Moral = org.Rfc.Length == 12;
             org.Nivel = 5;
-            org.Pass = "Password1.";
+            org.Pass = "Password1";
 
             ApiRespuesta<LaOrgNew> resultado = await ServicioNew(org);
 

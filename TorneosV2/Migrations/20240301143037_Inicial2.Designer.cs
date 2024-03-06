@@ -11,8 +11,8 @@ using TorneosV2.Data;
 namespace TorneosV2.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240118055437_Inicial")]
-    partial class Inicial
+    [Migration("20240301143037_Inicial2")]
+    partial class Inicial2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -370,6 +370,76 @@ namespace TorneosV2.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("TorneosV2.Modelos.Z170_Files", b =>
+                {
+                    b.Property<string>("FileId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Archivo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Folder")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RegistroId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.HasKey("FileId");
+
+                    b.HasIndex("RegistroId");
+
+                    b.ToTable("Archivos");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z172_Registros", b =>
+                {
+                    b.Property<string>("RegistroId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Registro")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("RegistroId");
+
+                    b.ToTable("Registros");
+                });
+
             modelBuilder.Entity("TorneosV2.Modelos.Z190_Bitacora", b =>
                 {
                     b.Property<string>("BitacoraId")
@@ -424,6 +494,364 @@ namespace TorneosV2.Migrations
                     b.HasKey("LogId");
 
                     b.ToTable("LogsBitacora");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z300_Nombres", b =>
+                {
+                    b.Property<string>("NombreId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Apodo")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Materno")
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<DateTime>("Nacimiento")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Nacionalidad")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Paterno")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Sexo")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("varchar(1)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("NombreId");
+
+                    b.ToTable("Nombres");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z302_Contactos", b =>
+                {
+                    b.Property<string>("ContactoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombreId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Observacion")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Valor")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.HasKey("ContactoId");
+
+                    b.HasIndex("NombreId");
+
+                    b.ToTable("Contactos");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z304_Domicilio", b =>
+                {
+                    b.Property<string>("ContactoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Calle")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Ciudad")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Colonia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Edo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Municipio")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("NombreId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PaisId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("ContactoId");
+
+                    b.HasIndex("NombreId");
+
+                    b.HasIndex("PaisId");
+
+                    b.ToTable("Domicilios");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z309_Pariente", b =>
+                {
+                    b.Property<string>("ContactoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombreId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Parentesco")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("ParienteId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("ContactoId");
+
+                    b.HasIndex("NombreId");
+
+                    b.ToTable("Parientes");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z360_Solicitud", b =>
+                {
+                    b.Property<string>("ContactoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ServicioId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("ContactoId");
+
+                    b.HasIndex("ServicioId");
+
+                    b.ToTable("Solicitudes");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z362_SolDet", b =>
+                {
+                    b.Property<string>("SolDetId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombreId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("SolicitudId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("SolDetId");
+
+                    b.HasIndex("NombreId");
+
+                    b.HasIndex("SolicitudId");
+
+                    b.ToTable("SolDetalles");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z368_Seguimiento", b =>
+                {
+                    b.Property<string>("SeguimientoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("DetalleId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombreId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Observacion")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Responsable")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("SolicitudContactoId")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("SeguimientoId");
+
+                    b.HasIndex("NombreId");
+
+                    b.HasIndex("SolicitudContactoId");
+
+                    b.ToTable("Seguimientos");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z380_Servicios", b =>
+                {
+                    b.Property<string>("ServicioId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Clave")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("ServicioId");
+
+                    b.ToTable("Servicios");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z390_Pais", b =>
+                {
+                    b.Property<string>("PaisId")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Clave")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("varchar(5)");
+
+                    b.Property<string>("Corto")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Favorito")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Oficial")
+                        .IsRequired()
+                        .HasMaxLength(75)
+                        .HasColumnType("varchar(75)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Telefono")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("varchar(5)");
+
+                    b.HasKey("PaisId");
+
+                    b.ToTable("Paises");
                 });
 
             modelBuilder.Entity("TorneosV2.Modelos.ZConfig", b =>
@@ -551,6 +979,17 @@ namespace TorneosV2.Migrations
                     b.Navigation("Org");
                 });
 
+            modelBuilder.Entity("TorneosV2.Modelos.Z170_Files", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z172_Registros", "Registro")
+                        .WithMany("Archivos")
+                        .HasForeignKey("RegistroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Registro");
+                });
+
             modelBuilder.Entity("TorneosV2.Modelos.Z190_Bitacora", b =>
                 {
                     b.HasOne("TorneosV2.Modelos.Z100_Org", "Org")
@@ -560,6 +999,96 @@ namespace TorneosV2.Migrations
                         .IsRequired();
 
                     b.Navigation("Org");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z302_Contactos", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z300_Nombres", "Nombre")
+                        .WithMany("Contactos")
+                        .HasForeignKey("NombreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nombre");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z304_Domicilio", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z300_Nombres", "Nombre")
+                        .WithMany("Domicilios")
+                        .HasForeignKey("NombreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TorneosV2.Modelos.Z390_Pais", "Pais")
+                        .WithMany("Domicilio")
+                        .HasForeignKey("PaisId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nombre");
+
+                    b.Navigation("Pais");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z309_Pariente", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z300_Nombres", "Nombre")
+                        .WithMany("Parientes")
+                        .HasForeignKey("NombreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nombre");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z360_Solicitud", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z380_Servicios", "Servicio")
+                        .WithMany("Solicitud")
+                        .HasForeignKey("ServicioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Servicio");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z362_SolDet", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z300_Nombres", "Nombre")
+                        .WithMany("Solicitudes")
+                        .HasForeignKey("NombreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TorneosV2.Modelos.Z360_Solicitud", "Solicitud")
+                        .WithMany("Detalles")
+                        .HasForeignKey("SolicitudId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nombre");
+
+                    b.Navigation("Solicitud");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z368_Seguimiento", b =>
+                {
+                    b.HasOne("TorneosV2.Modelos.Z300_Nombres", "Nombre")
+                        .WithMany("Seguimientos")
+                        .HasForeignKey("NombreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TorneosV2.Modelos.Z360_Solicitud", "Solicitud")
+                        .WithMany("Seguimientos")
+                        .HasForeignKey("SolicitudContactoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Nombre");
+
+                    b.Navigation("Solicitud");
                 });
 
             modelBuilder.Entity("TorneosV2.Modelos.Z100_Org", b =>
@@ -572,6 +1101,41 @@ namespace TorneosV2.Migrations
             modelBuilder.Entity("TorneosV2.Modelos.Z102_Grupo", b =>
                 {
                     b.Navigation("GpoDetalles");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z172_Registros", b =>
+                {
+                    b.Navigation("Archivos");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z300_Nombres", b =>
+                {
+                    b.Navigation("Contactos");
+
+                    b.Navigation("Domicilios");
+
+                    b.Navigation("Parientes");
+
+                    b.Navigation("Seguimientos");
+
+                    b.Navigation("Solicitudes");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z360_Solicitud", b =>
+                {
+                    b.Navigation("Detalles");
+
+                    b.Navigation("Seguimientos");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z380_Servicios", b =>
+                {
+                    b.Navigation("Solicitud");
+                });
+
+            modelBuilder.Entity("TorneosV2.Modelos.Z390_Pais", b =>
+                {
+                    b.Navigation("Domicilio");
                 });
 #pragma warning restore 612, 618
         }

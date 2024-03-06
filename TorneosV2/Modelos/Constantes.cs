@@ -56,6 +56,7 @@ namespace TorneosV2.Modelos
         public const string OrgTipo = "Administracion,Proveedor,Cliente";
         public const string Grupo = "General";
         public const string Niveles = "Registrado,Proveedor,Jugador,Cliente,Cliente_Admin,Zuver,Zuver_Admin,ABD";
+        public const string Sexo = "Mujer, Hombre, N/A";
 
         public const bool EsNecesarioConfirmarMail = false;
         public const string ConfirmarMailTxt = "https://torneos.mx/Account/ConfirmEmail/Id=";

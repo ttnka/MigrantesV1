@@ -138,6 +138,8 @@
     {
         try
         {
+            ShowNotification(ElMsn("Info",
+                "Estamos trabajando", "Danos un min para trabajar sobre estos cambios", 0));
             Editando = !Editando;
             BotonNuevo = true;
             ApiRespValor cambioPassResp = new();
@@ -152,22 +154,24 @@
                 return;
 
             int Edo = ElUser.Estado == 3 ? 1 : ElUser.Estado;
-            Z110_User UserUpdated = new(ElUser.UserId, user.Nombre, user.Paterno, user.Materno, ElUser.Nivel,
-                ElUser.OrgId, ElUser.OldEmail, Edo, ElUser.Status);
-            UserUpdated.OrgAdd(ElUser.Org);
-            ApiRespuesta<Z110_User> resultado = await UserRepo.UpdateDiferente(UserUpdated, ElUser.UserId);
+            ElUser.Nombre = user.Nombre;
+            ElUser.Paterno = user.Paterno;
+            ElUser.Materno = user.Materno;
+            ElUser.OldEmail = user.Email;
 
-            string txt = resultado.Data.UserId; 
+            Z110_User resultado = await UserRepo.Update(ElUser);
 
-            if (resultado.Exito)
+            string txt = resultado.UserId; 
+
+            if (resultado != null)
             {
                 ElUser = await UserRepo.GetById(txt);
-                txt = $"Mail: {resultado.Data.OldEmail}, ";
-                txt += $"pertenece a la organizacion: {resultado.Data.Org.Comercial}    ,  ";
-                txt += $"Nivel: {Niveles[resultado.Data.Nivel]}"; ;
+                txt = $"Mail: {resultado.OldEmail}, ";
+                txt += $"pertenece a la organizacion: {resultado.Org.Comercial}    ,  ";
+                txt += $"Nivel: {Niveles[resultado.Nivel]}"; ;
                 ShowNotification(ElMsn("Ok", "Actualizando datos",
-                        $"Estamos actualizando tus datos {resultado.Data.Completo}!!! ", 0));
-                txt = $"{TBita}, Actualizando datos {resultado.Data.Completo} " + txt;
+                        $"Estamos actualizando tus datos {resultado.Completo}!!! ", 0));
+                txt = $"{TBita}, Actualizando datos {resultado.Completo} " + txt;
 
                 Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
                 bitaT.OrgAdd(ElUser.Org);

@@ -131,9 +131,9 @@
                             <RadzenDataGridColumn TItem="Z190_Bitacora" Filterable="false" Property="Fecha"
                                                   Title="Fecha" Frozen="true" Width="90px" TextAlign="TextAlign.Left">
                                 <Template Context=DBita>
-                                    <label>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", DBita.Fecha)}")</label>
+                                    <RadzenLabel>@($"{@MyFunc.FormatoFecha("DD/MMM/AA", DBita.Fecha)}")</RadzenLabel>
                                     <br />
-                                    <label>@($"{@MyFunc.LaHora(@DBita.Fecha, "S")}")</label>
+                                    <RadzenLabel>@($"{@MyFunc.LaHora(@DBita.Fecha, "S")}")</RadzenLabel>
                                 </Template>
                             </RadzenDataGridColumn>
 

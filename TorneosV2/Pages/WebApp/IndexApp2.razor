@@ -3,6 +3,8 @@
 @inject NotificationService NS
 @using TorneosV2.Modelos
 @using TorneosV2.Pages.Sistema
+@using TorneosV2.Pages.Configuracion
+@using TorneosV2.Pages.Datos
 
 <PageTitle>Aplicacion</PageTitle>
 
@@ -25,10 +27,25 @@
                 }
                 else
                 {
-                        @if (ElUser.Nivel > 5)
-                            {<RadzenLink @href="/sistema">Administracion</RadzenLink>}
-                    
-                    <RadzenLabel>cuatro</RadzenLabel>
+                    @if (ElUser.Nivel > 5)
+                            {<RadzenLink href="/sistema">Administracion</RadzenLink>}
+
+                    <RadzenTabs>
+                        <Tabs>
+                            <RadzenTabsItem Text="Nombres">
+                                <NombresList />
+                            </RadzenTabsItem>
+                            @if (ElUser.Nivel > 4)
+                            {
+                                <RadzenTabsItem Text="Servicios">
+                                    <ServiciosList />
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Paises">
+                                    <PaisesList />
+                                </RadzenTabsItem>
+                            }
+                        </Tabs>
+                    </RadzenTabs>
 
                 }
                 

@@ -1,0 +1,296 @@
+﻿@inherits PaisesListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
+
+
+@if (LosPaises != null && !Leyendo)
+{
+    <RadzenDataGrid @ref="PaisGrid"
+                    AllowFiltering="true" AllowPaging="true" PageSize="50"
+                    AllowSorting="true" AllowColumnResize="true"
+                    ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                    EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                    Data="@LosPaises" TItem="Z390_Pais"
+                    RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 6)
+            {
+                <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                              ButtonStyle="ButtonStyle.Success" Click="InsertRow">
+                    @BtnNewText
+                </RadzenButton>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                          ButtonStyle="ButtonStyle.Info" Click="LeerPaises">
+                Actualizar
+            </RadzenButton>
+        </HeaderTemplate>
+
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+            <RadzenDataGridColumn TItem="Z390_Pais" Title="Id"
+                                  Filterable="false" Width="50px">
+                <Template Context="datos">
+                    @(LosPaises.IndexOf(datos) + 1)
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z390_Pais" Title="Clave" Filterable="true"
+                                  Width="100px" Property="Clave">
+                <Template Context="datos">
+                    @datos.Clave
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Clave" @bind-Value="datos.Clave" Style="width: 100%" /> <br />
+                    <RadzenLengthValidator Component="Clave" Min="2" Max="5"
+                                           Text="La Clave son 2 a 5 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z390_Pais" Title="Corto" Property="Corto"
+                                  Filterable="true" Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Corto </RadzenLabel>
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Corto" @bind-Value="datos.Corto" Style="width: 90%" /><br />
+                    <RadzenRequiredValidator Component="Corto" Max="25" Text="El Nombre Corto es Obligatorio." />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z390_Pais" Title="Telefono" Property="Telefono"
+                                  Filterable="true" Resizable="true" Width="150px">
+
+                <Template Context="datos">
+                    <RadzenLabel>
+                        @datos.Telefono
+                    </RadzenLabel>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Telefono" @bind-Value="datos.Telefono" Style="width: 90%" /><br />
+                    <RadzenRequiredValidator Component="Telefono" Min="2" Max="5" Text="El telefono es Obligatorio." />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z390_Pais" Title="Favorito" Property="Favorito"
+                                  Filterable="true" Resizable="true" Width="150px">
+                <Template Context="datos">
+                    <div class="rz-p-12 rz-text-align-center">
+                        <RadzenCheckBox ReadOnly=true @bind-Value=@datos.Favorito Name="Favorito" />
+                        <RadzenLabel Text="Favorito" Component="Favorito"
+                                     Style="margin-left: 8px; vertical-align: middle;" />
+                    </div>
+                </Template>
+
+                <EditTemplate Context="datos">
+                    <div class="rz-p-12 rz-text-align-center">
+                        <RadzenCheckBox @bind-Value=@datos.Favorito Name="Favorito" />
+                        <RadzenLabel Text="Favorito" Component="Favorito"
+                                     Style="margin-left: 8px; vertical-align: middle;" />
+                    </div>
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z390_Pais" Title="Nombre ompleto"
+                                  Filterable="true" Width="250px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Oficial </RadzenLabel>
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Oficial" @bind-Value="datos.Oficial" Style="width: 90%" /><br />
+                    <RadzenRequiredValidator Component="Corto" Max="25" Text="El Nombre Corto es Obligatorio." />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z390_Pais" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                  Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado != 3)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+else
+{
+    <div class="spinner">
+        pais
+    </div>
+}
+
+
+@code {
+    void ShowAddForm()
+    {
+
+        if (AddFormShow)
+        {
+            AddFormShow = false;
+            BtnNewText = "Nuevo Pais";
+        }
+        else
+        {
+            AddFormShow = true;
+            BtnNewText = "Ocultar formulario";
+        }
+    }
+
+    void Cancelar()
+    {
+        PaisToInsert = new() { Estado = 3 };
+    }
+
+    Z390_Pais PaisToInsert = new() { Estado = 3 };
+
+    async Task EditRow(Z390_Pais pais)
+    {
+        await PaisGrid!.EditRow(pais);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(Z390_Pais pais)
+    {
+        if (pais == PaisToInsert) PaisToInsert = null!;
+
+        Editando = !Editando;
+        ApiRespuesta<Z390_Pais> resultado = await Servicio(ServiciosTipos.Update, pais);
+
+        string txt = $"Clave: {pais.Clave}, Telefono: {pais.Telefono}";
+        txt += $"Es favorito: {pais.Favorito}, nombre oficial: {pais.Oficial},";
+        txt += pais.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("info", "Actualizo",
+                $"Se actualizo la informacion del pais {pais.Corto}", 0));
+            txt = $"{TBita}, Se actualizo la info del pais {pais.Corto}";
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error No Se actualizo la info del pais {pais.Corto}";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 4000));
+            txt = $"{TBita}, No se actualizo un registro de pais" + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, false);
+            await LogAll(logTemp);
+            await PaisGrid!.Reload();
+        }
+
+    }
+
+    async Task SaveRow(Z390_Pais pais)
+    {
+        await PaisGrid!.UpdateRow(pais);
+    }
+
+    void CancelEdit(Z390_Pais pais)
+    {
+        if (pais == PaisToInsert) PaisToInsert = null!;
+
+        Editando = !Editando;
+        PaisGrid!.CancelEditRow(pais);
+    }
+
+    async Task InsertRow()
+    {
+        PaisToInsert = new() { Estado = 3 };
+
+        Editando = !Editando;
+        await PaisGrid!.InsertRow(PaisToInsert);
+
+    }
+
+    async void OnCreateRow(Z390_Pais pais)
+    {
+        if (pais == PaisToInsert) PaisToInsert = null!;
+
+        Editando = !Editando;
+        ApiRespuesta<Z390_Pais> resultado = await Servicio(ServiciosTipos.Insert, pais);
+
+        string txt = $"Clave: {pais.Clave}, Telefono: {pais.Telefono}";
+        txt += $"Es favorito: {pais.Favorito}, nombre oficial: {pais.Oficial},";
+        txt += pais.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Exito", "Nuevo pais",
+                $"Se creo un nuevo registro de pais {pais.Corto}", 0));
+
+            Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
+            bitaT.OrgAdd(ElUser.Org);
+            await BitacoraAll(bitaT);
+        }
+        else
+        {
+            string etxt = $"Error NO se creo el nuevo registro de Pais {pais.Corto}    ";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 0));
+            txt = $"{TBita}, No se creo una nuevo pais " + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+            await LogAll(logTemp);
+
+            await PaisGrid!.Reload();
+
+        }
+
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}
