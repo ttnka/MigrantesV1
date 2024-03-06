@@ -117,7 +117,7 @@ namespace TorneosV2.Pages.Sistema
             
             if (MDUser.Pass.Length > 1 || ElUser.Estado == 3)
             {
-                string[] Prohibido = { "Password", "contraseña", "123", "aaa" };
+                string[] Prohibido = { "password1", "contraseña1", "123", "aaa" };
                 bool IsMin = false;
                 bool IsMay = false;
                 bool IsNum = false;
@@ -137,6 +137,7 @@ namespace TorneosV2.Pages.Sistema
                 Msn = !IsMay ? "El Password requiere almenos una mayuscula!" : Msn;
                 Msn = !IsNum ? "El Password requiere almenos un numero!" : Msn;
                 Msn = HasRep ? "El Password no puede tener caracteres repetidos, 3 veces!" : Msn;
+                Msn = MDUser.Pass == "Password1" ? "Password NO valido!" : Msn;
                 Msn = Prohibido.Contains(MDUser.Pass.ToLower()) ? "El Password no es una palabra aceptable" : Msn;
 
                 Msn = Msn == "" ? "Ok" : Msn;

@@ -80,12 +80,12 @@
 
     void CheckPass()
     {
-        
+
         Msn = "";
         if (PassData.Pass.Length < 6 || PassData.Confirm.Length < 6) return;
 
 
-        string[] Prohibido = { "password", "contraseña", "123", "aaa", "dios" };
+        string[] Prohibido = { "password1", "contraseña1", "123", "aaa", "dios" };
         bool IsMin = false;
         bool IsMay = false;
         bool IsNum = false;
@@ -103,6 +103,7 @@
         Msn = !IsMay ? "El Password requiere almenos una mayuscula!" : Msn;
         Msn = !IsNum ? "El Password requiere almenos un numero!" : Msn;
         Msn = HasRep ? "El Password no puede tener caracteres repetidos, 3 veces!" : Msn;
+        Msn = PassData.Pass == "Password1" ? "Password NO valido!" : Msn; 
         Msn = Prohibido.Contains(PassData.Pass.ToLower()) ? "El Password no es una palabra aceptable" : Msn;
         Msn = Msn == "" ? "Ok" : Msn;
     }

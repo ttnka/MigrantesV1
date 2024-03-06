@@ -153,7 +153,7 @@
                 user.Materno == ElUser.Materno)
                 return;
 
-            int Edo = ElUser.Estado == 3 ? 1 : ElUser.Estado;
+            ElUser.Estado = ElUser.Estado == 3 ? 1 : ElUser.Estado;
             ElUser.Nombre = user.Nombre;
             ElUser.Paterno = user.Paterno;
             ElUser.Materno = user.Materno;

@@ -66,6 +66,11 @@ namespace TorneosV2.Pages.Sistema
                 if (resp.Succeeded)
                 {
                     Z110_User elUserT = await UserRepo.GetById(Usuario!.Id);
+                    if (elUserT.Estado == 3)
+                    {
+                        elUserT.Estado = 1;
+                        await UserRepo.Update(elUserT);
+                    }
                     Z190_Bitacora bitT = new(elUserT.UserId, $"Se cambio de password {TBita}", elUserT.OrgId);
                     Z100_Org orgTmp = await OrgRepo.GetById(elUserT.OrgId);
                     bitT.OrgAdd(orgTmp);
