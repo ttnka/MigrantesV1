@@ -243,6 +243,7 @@ else
         if (pais == PaisToInsert) PaisToInsert = null!;
         ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
         Editando = !Editando;
+        pais.Estado = 1;
         ApiRespuesta<Z390_Pais> resultado = await Servicio(ServiciosTipos.Insert, pais);
 
         string txt = $"Clave: {pais.Clave}, Telefono: {pais.Telefono}";

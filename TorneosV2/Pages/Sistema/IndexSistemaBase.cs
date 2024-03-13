@@ -38,7 +38,6 @@ namespace TorneosV2.Pages.Sistema
         public List<Z390_Pais> LosPaisesAll { get; set; } = new List<Z390_Pais>();
         public List<ZConfig> LosConfigsAll { get; set; } = new List<ZConfig>();
 
-        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera = true;
         public int IndexTabAll { get; set; } = 0;
 
@@ -51,11 +50,14 @@ namespace TorneosV2.Pages.Sistema
 
                 await ReadPaisesAll();
                 await ReadLasOrgsAll();
+                await ReadLosUsersAll();
                 await ReadLosConfigsAll();
                 await ReadLosNombresAll();
                 await ReadLosServiciosAll();
 
-                Z190_Bitacora bita = new(ElUser.UserId, $"{TBita}, se consulto en app administrativo", ElUser.OrgId);
+                string t = $"{TBita}, se consulto en app administrativo, se leyenron los datos de ";
+                t += "Paises, Organizaciones, Usuarios, Configuracion, Nombres y Servicios";
+                Z190_Bitacora bita = new(ElUser.UserId, t, ElUser.OrgId);
                 BitacoraMas(bita);
             }
         }
@@ -163,10 +165,10 @@ namespace TorneosV2.Pages.Sistema
 
         #region Usuario y Bitacora
 
-
+        [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
-        
-        public Z100_Org LaOrg { get; set; } = default!;
+        //[CascadingParameter(Name = "LasBitacorasAll")]
+        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -199,37 +201,30 @@ namespace TorneosV2.Pages.Sistema
         }
         [Inject]
         public NavigationManager NM { get; set; } = default!;
-        public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        
         public void BitacoraMas(Z190_Bitacora bita)
         {
             if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                bita.OrgAdd(ElUser.Org);
                 LasBitacoras.Add(bita);
             }
         }
         public async Task BitacoraWrite()
         {
+            foreach (var b in LasBitacoras)
+            {
+                b.OrgAdd(ElUser.Org);
+            }
             await BitaRepo.InsertPlus(LasBitacoras);
             LasBitacoras.Clear();
         }
+
         public async Task LogAll(Z192_Logs log)
         {
-            try
+            if (log.LogId != LastLog.LogId)
             {
-                if (log.LogId != LastLog.LogId)
-                {
-                    LastLog = log;
-                    await LogRepo.Insert(log);
-                }
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = new(ElUser.UserId,
-                    $"Error al intentar escribir BITACORA, {TBita},{ex}", true);
-                await LogAll(LogT);
+                LastLog = log;
+                await LogRepo.Insert(log);
             }
 
         }
@@ -238,9 +233,9 @@ namespace TorneosV2.Pages.Sistema
         #region Preguntar USER
         [Inject]
         public UserManager<IdentityUser> UserMger { get; set; } = default!;
-
         [CascadingParameter]
         public Task<AuthenticationState> AuthStateTask { get; set; } = default!;
+        public Z100_Org LaOrg { get; set; } = new("","","","","",1,true); 
 
         public async Task LeerElUser()
         {
@@ -276,7 +271,6 @@ namespace TorneosV2.Pages.Sistema
                 Z192_Logs LogT = new(ElUser.UserId,
                     $"Error al intentar leer EL USER USUARIO, {TBita},{ex}", true);
                 await LogAll(LogT);
-
             }
         }
 

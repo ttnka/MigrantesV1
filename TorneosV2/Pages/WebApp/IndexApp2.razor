@@ -11,54 +11,53 @@
 <AuthorizeView>
     <Authorized>
         <CascadingValue Value="ElUser" Name="ElUserAll">
-            @if (ElUser == null || ElUser.UserId.Length < 15)
-            {
-                <div class="spinner">IndexApp</div>
-            }
-            else
-            {
-                @if (ElUser.Estado == 3)
+            <CascadingValue Value="LasBitacoras" Name="LasBitacorasAll">
+                @if (ElUser == null || ElUser.UserId.Length < 15)
                 {
-                    <h2>Cambio de Password</h2>
-                    <RadzenLabel>Es necesario cambiar tu Password, recuerda Usar:</RadzenLabel><br />
-                    <RadzenLabel>Utilizar almenos una letra mayuscula, una letra miniscula y un numero.</RadzenLabel>
-                    <MisDatos />
+                    <div class="spinner">IndexApp</div>
                 }
                 else
                 {
-                    @if (ElUser.Nivel > 5) {<RadzenLink href="/sistema">Administracion</RadzenLink>}
+                    @if (ElUser.Estado == 3)
+                    {
+                        <h2>Cambio de Password</h2>
+                        <RadzenLabel>Es necesario cambiar tu Password, recuerda Usar:</RadzenLabel><br />
+                        <RadzenLabel>Utilizar almenos una letra mayuscula, una letra miniscula y un numero.</RadzenLabel>
+                        <MisDatos />
+                    }
+                    else
+                    {
+                        @if (ElUser.Nivel > 5)
+                        {<RadzenLink href="/sistema">Administracion</RadzenLink>}
 
 
-                    <RadzenTabs @bind-SelectedIndex="IndexTabAll">
-                        <Tabs>
-                            <RadzenTabsItem Text="Nombres">
-                                <NombresList 
-                                                ReadNENombres="ReadLosNombresAll" LosNombres="LosNombresAll"
-                                                ReadNEPaises="ReadPaisesAll" LosPaises="LosPaisesAll"
-                                                ReadNEConfig="ReadLosConfigsAll" LosConfigs="LosConfigsAll"/>
-                            </RadzenTabsItem>
-                            @if (ElUser.Nivel > 4)
-                            {
-                                <RadzenTabsItem Text="Servicios">
-                                    <ServiciosList 
-                                                    ReadOrganizaciones="ReadLasOrgsAll" LasOrgs="LasOrgsAll"
-                                                    ReadServicios="ReadLosServiciosAll" LosServicios="LosServiciosAll" />
+                        <RadzenTabs @bind-SelectedIndex="IndexTabAll">
+                            <Tabs>
+                                <RadzenTabsItem Text="Nombres">
+                                    <NombresList ReadNENombres="ReadLosNombresAll" LosNombres="LosNombresAll"
+                                                 ReadNEPaises="ReadPaisesAll" LosPaises="LosPaisesAll"
+                                                 ReadNEConfig="ReadLosConfigsAll" LosConfigs="LosConfigsAll" />
                                 </RadzenTabsItem>
+                                @if (ElUser.Nivel > 4)
+                                {
+                                    <RadzenTabsItem Text="Servicios">
+                                        <ServiciosList ReadOrganizaciones="ReadLasOrgsAll" LasOrgs="LasOrgsAll"
+                                                       ReadServicios="ReadLosServiciosAll" LosServicios="LosServiciosAll" />
+                                    </RadzenTabsItem>
 
 
-                                <RadzenTabsItem Text="Paises">
-                                    <PaisesList 
-                                                ReadPaises="ReadPaisesAll" LosPaises="LosPaisesAll" />
-                                </RadzenTabsItem>
+                                    <RadzenTabsItem Text="Paises">
+                                        <PaisesList ReadPaises="ReadPaisesAll" LosPaises="LosPaisesAll" />
+                                    </RadzenTabsItem>
 
-                            }
-                        </Tabs>
-                    </RadzenTabs>
+                                }
+                            </Tabs>
+                        </RadzenTabs>
+
+                    }
 
                 }
-
-            }
-            
+            </CascadingValue>
         </CascadingValue>
     </Authorized>
 

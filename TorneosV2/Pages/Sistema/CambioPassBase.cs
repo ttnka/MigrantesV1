@@ -73,8 +73,8 @@ namespace TorneosV2.Pages.Sistema
                     }
                     Z190_Bitacora bitT = new(elUserT.UserId, $"Se cambio de password {TBita}", elUserT.OrgId);
                     Z100_Org orgTmp = await OrgRepo.GetById(elUserT.OrgId);
-                    bitT.OrgAdd(orgTmp);
-                    await BitacoraAll(bitT);
+                    BitacoraMas(bitT);
+                    await BitacoraWrite();
                 }
                 else
                 {
@@ -94,6 +94,8 @@ namespace TorneosV2.Pages.Sistema
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
+        [CascadingParameter(Name = "LasBitacorasAll")]
+        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -126,42 +128,32 @@ namespace TorneosV2.Pages.Sistema
         }
         [Inject]
         public NavigationManager NM { get; set; } = default!;
-        public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            try
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                if (bita.BitacoraId != LastBita.BitacoraId)
-                {
-                    LastBita = bita;
-                    await BitaRepo.Insert(bita);
-                }
+                LasBitacoras.Add(bita);
             }
-            catch (Exception ex)
+        }
+        public async Task BitacoraWrite()
+        {
+            foreach (var b in LasBitacoras)
             {
-                Z192_Logs LogT = new(ElUser.UserId,
-                    $"Error al intentar escribir BITACORA, {TBita},{ex}", true);
-                await LogAll(LogT);
+                b.OrgAdd(ElUser.Org);
             }
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
         }
 
         public async Task LogAll(Z192_Logs log)
         {
-            try
+            if (log.LogId != LastLog.LogId)
             {
-                if (log.LogId != LastLog.LogId)
-                {
-                    LastLog = log;
-                    await LogRepo.Insert(log);
-                }
+                LastLog = log;
+                await LogRepo.Insert(log);
             }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = new(ElUser.UserId,
-                    $"Error al intentar escribir BITACORA, {TBita},{ex}", true);
-                await LogAll(LogT);
-            }
+
         }
         #endregion
 

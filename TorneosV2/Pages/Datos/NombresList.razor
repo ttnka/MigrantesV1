@@ -328,6 +328,7 @@ else
         if (nom == nombToInsert) nombToInsert = null!;
 
         Editando = !Editando;
+        nom.Estado = 1;
         ApiRespuesta<Z300_Nombres> resultado = await Servicio(ServiciosTipos.Insert, nom);
 
         string txt = nom.Apodo == null ? "" : $"apodo:' {nom.Apodo} '";

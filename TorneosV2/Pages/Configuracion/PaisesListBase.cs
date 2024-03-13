@@ -26,8 +26,7 @@ namespace TorneosV2.Pages.Configuracion
         public List<Z390_Pais> LosPaises { get; set; } = new List<Z390_Pais>();
 
         public RadzenDataGrid<Z390_Pais>? PaisGrid { get; set; } = new RadzenDataGrid<Z390_Pais>();
-
-        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
+        
         protected bool Primera { get; set; } = true;
         protected bool Editando { get; set; } = false;
 
@@ -80,7 +79,8 @@ namespace TorneosV2.Pages.Configuracion
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
-
+        [CascadingParameter(Name ="LasBitacorasAll")]
+        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -119,7 +119,7 @@ namespace TorneosV2.Pages.Configuracion
         {
             if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-               // bita.OrgAdd(ElUser.Org);
+               
                 LasBitacoras.Add(bita);
             }
         }

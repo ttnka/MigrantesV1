@@ -30,8 +30,7 @@ namespace TorneosV2.Pages.Configuracion
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
         [Parameter]
         public List<Z380_Servicios> LosServicios { get; set; } = new List<Z380_Servicios>();
-        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
-
+        
         public RadzenDataGrid<Z380_Servicios>? ServiciosGrid { get; set; } =
                                         new RadzenDataGrid<Z380_Servicios>();
 
@@ -83,7 +82,8 @@ namespace TorneosV2.Pages.Configuracion
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
-
+        [CascadingParameter(Name = "LasBitacorasAll")]
+        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -122,12 +122,16 @@ namespace TorneosV2.Pages.Configuracion
         {
             if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                bita.OrgAdd(ElUser.Org);
+
                 LasBitacoras.Add(bita);
             }
         }
         public async Task BitacoraWrite()
         {
+            foreach (var b in LasBitacoras)
+            {
+                b.OrgAdd(ElUser.Org);
+            }
             await BitaRepo.InsertPlus(LasBitacoras);
             LasBitacoras.Clear();
         }
@@ -142,6 +146,7 @@ namespace TorneosV2.Pages.Configuracion
 
         }
         #endregion
+
 
     }
 }

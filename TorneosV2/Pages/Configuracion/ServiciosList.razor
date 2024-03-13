@@ -252,6 +252,7 @@ else
 
         serv.OrgAdd(o!);
         Editando = !Editando;
+        serv.Estado = 1;
         ApiRespuesta<Z380_Servicios> resultado = await Servicio(ServiciosTipos.Insert, serv);
 
         string txt = $"Clave: {serv.Clave}, Tipo: {serv.Tipo}";

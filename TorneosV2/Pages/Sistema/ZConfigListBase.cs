@@ -36,7 +36,6 @@ namespace TorneosV2.Pages.Sistema
         public RadzenDataGrid<ZConfig>? ConfigsGrid { get; set; } =
                                         new RadzenDataGrid<ZConfig>();
 
-        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
         protected bool Editando { get; set; } = false;
         public string Msn { get; set; } = "";
@@ -91,10 +90,13 @@ namespace TorneosV2.Pages.Sistema
             return resp;
         }
 
+
         #region Usuario y Bitacora
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
+        [CascadingParameter(Name = "LasBitacorasAll")]
+        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -133,15 +135,20 @@ namespace TorneosV2.Pages.Sistema
         {
             if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                bita.OrgAdd(ElUser.Org);
+
                 LasBitacoras.Add(bita);
             }
         }
         public async Task BitacoraWrite()
         {
+            foreach (var b in LasBitacoras)
+            {
+                b.OrgAdd(ElUser.Org);
+            }
             await BitaRepo.InsertPlus(LasBitacoras);
             LasBitacoras.Clear();
         }
+
         public async Task LogAll(Z192_Logs log)
         {
             if (log.LogId != LastLog.LogId)
@@ -152,6 +159,7 @@ namespace TorneosV2.Pages.Sistema
 
         }
         #endregion
+
 
     }
 }
