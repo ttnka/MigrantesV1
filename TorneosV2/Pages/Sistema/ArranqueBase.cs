@@ -226,7 +226,7 @@ namespace TorneosV2.Pages.Sistema
                 return false;
             }
         }
-
+        
         protected async Task AgregaTextoMails()
         {
             try
@@ -235,25 +235,27 @@ namespace TorneosV2.Pages.Sistema
                 //  para los mials hay tres tipo de texto, usamos txt para titulo o bien cuerpo
                 //  Grupo: Email
                 //  Tipo:Organizacion, Usuario, Folio
-                //  Titulo: Titulo, Cuerpo
+                //  Titulo= Titulo, Cuerpo
 
-                ZConfig t1 = new(
-                    grupo: "EMail",
-                    usuario: "",
-                    entero: 0,
-                    decim: 0,
-                    tipo: "Organizacion",
-                    titulo: "Titulo",
-                    txt: $"Bienvenidos a {Constantes.ElDominio} !",
-                    fecha1: DateTime.Now,
-                    fecha2: DateTime.Now
-                ) ; 
+                ZConfig t1 = new()
+                {
+                    Grupo = "EMail",
+                    Usuario = "",
+                    Entero = 0,
+                    Decim = 0,
+                    Tipo = "Organizacion",
+                    Titulo = "Titulo",
+                    Txt = $"Bienvenidos a {Constantes.ElDominio} !",
+                    Fecha1 = DateTime.Now,
+                    Fecha2 = DateTime.Now
+                };
+
                 nuevosReg.Add(t1);
                 string elTxt = "<h1>Saludos tenemos una nueva organizacion!</h1>";
                 #region Texto de bienvenida
 
                 elTxt += "<br /> Esta nueva organizacion se registro con tu correo, puedes consultar en";
-                elTxt += "<br /> <a href='https://torneos.mx'>Torneos.mx</a> todos nuestros servicios";
+                elTxt += "<br /> <a href='https=//torneos.mx'>Torneos.mx</a> todos nuestros servicios";
                 elTxt += "<br /> Utiliza esta cuenta de correo como usuario y la contraseña es tu RFC.";
                 elTxt += "<br /> en tu primera visita es necesario cambiar tu contraseña por seguridad.";
                 elTxt += "<br /> si tienes dudas te invitamos a contactarnos, via telefonica o bien email";
@@ -263,31 +265,33 @@ namespace TorneosV2.Pages.Sistema
 
                 #endregion
 
-                t1 = new(
-                    grupo: "EMail",
-                    tipo: "Organizacion",
-                    usuario: "",
-                    entero:0,
-                    decim: 0,
-                    titulo: "Cuerpo",
-                    txt: elTxt,
-                    fecha1: DateTime.Now,
-                    fecha2: DateTime.Now
-                );
-                    
+                t1 = new()
+                {
+                    Grupo = "EMail",
+                    Tipo = "Organizacion",
+                    Usuario = "",
+                    Entero = 0,
+                    Decim = 0,
+                    Titulo = "Cuerpo",
+                    Txt = elTxt,
+                    Fecha1 = DateTime.Now,
+                    Fecha2 = DateTime.Now
+                };
+
                 nuevosReg.Add(t1);
 
-                t1 = new(
-                    grupo: "EMail",
-                    tipo: "Usuario",
-                    usuario: "",
-                    titulo: "Titulo",
-                    txt: $"Bienvenido a {Constantes.ServerMail01} tienes un nuevo usuario",
-                    entero: 0,
-                    decim: 0,
-                    fecha1: DateTime.Now,
-                    fecha2: DateTime.Now
-                );
+                t1 = new()
+                {
+                    Grupo = "EMail",
+                    Tipo = "Usuario",
+                    Usuario = "",
+                    Titulo = "Titulo",
+                    Txt = $"Bienvenido a {Constantes.ServerMail01} tienes un nuevo usuario",
+                    Entero = 0,
+                    Decim = 0,
+                    Fecha1 = DateTime.Now,
+                    Fecha2 = DateTime.Now
+                };
                 nuevosReg.Add(t1);
                 elTxt = "<h1>Saludos tenemos un nuevo usuario con tu nombre!</h1>";
 
@@ -304,31 +308,33 @@ namespace TorneosV2.Pages.Sistema
 
                 #endregion
 
-                t1 = new(
-                    grupo: "EMail",
-                    tipo: "Usuario",
-                    usuario: "",
-                    titulo: "Cuerpo",
-                    txt: elTxt,
-                    entero: 0,
-                    decim: 0,
-                    fecha1: DateTime.Now,
-                    fecha2: DateTime.Now
-                );
-                    
+                t1 = new()
+                {
+                    Grupo = "EMail",
+                    Tipo = "Usuario",
+                    Usuario = "",
+                    Titulo = "Cuerpo",
+                    Txt = elTxt,
+                    Entero = 0,
+                    Decim = 0,
+                    Fecha1 = DateTime.Now,
+                    Fecha2 = DateTime.Now
+                };
+
                 nuevosReg.Add(t1);
 
-                t1 = new(
-                    grupo: "EMail",
-                    tipo: "Juego",
-                    titulo: "Titulo",
-                    usuario: "",
-                    entero: 0,
-                    decim:0,
-                    txt: $"Somos {Constantes.ElDominio}! y tenemos una nueva ronda de juego ",
-                    fecha1: DateTime.Now,
-                    fecha2: DateTime.Now
-                );
+                t1 = new()
+                { 
+                    Grupo = "EMail",
+                    Tipo = "Juego",
+                    Titulo = "Titulo",
+                    Usuario = "",
+                    Entero = 0,
+                    Decim = 0,
+                    Txt = $"Somos {Constantes.ElDominio}! y tenemos una nueva ronda de juego ",
+                    Fecha1 = DateTime.Now,
+                    Fecha2 = DateTime.Now
+                };
                 nuevosReg.Add(t1);
 
                 elTxt = "<h1>Saludos tenemos una ronda de juego con tu nombre</h1>";
@@ -343,18 +349,18 @@ namespace TorneosV2.Pages.Sistema
                 elTxt += "<br /> <b>El equipo de trabajo de torneos.mx</b>";
                 #endregion
 
-
-                t1 = new(
-                    grupo: "EMail",
-                    tipo: "Folio",
-                    usuario: "",
-                    titulo: "Cuerpo",
-                    txt: elTxt,
-                    entero: 0,
-                    decim: 0,
-                    fecha1: DateTime.Now,
-                    fecha2: DateTime.Now
-                );
+                t1 = new()
+                {
+                    Grupo = "EMail",
+                    Tipo = "Folio",
+                    Usuario = "",
+                    Titulo = "Cuerpo",
+                    Txt = elTxt,
+                    Entero = 0,
+                    Decim = 0,
+                    Fecha1 = DateTime.Now,
+                    Fecha2 = DateTime.Now
+                };
                     
                 nuevosReg.Add(t1);
 
@@ -377,7 +383,7 @@ namespace TorneosV2.Pages.Sistema
                 await LogAll(logTemp);
             }
         }
-
+        
         public class LaClave
         {
             public string Pass { get; set; } = "";

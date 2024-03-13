@@ -5,45 +5,64 @@
 @using TorneosV2.Pages.Configuracion;
 @using TorneosV2.Pages.Datos
 
-
 <h3>Administracion DashBoard </h3>
 <AuthorizeView>
     <Authorized>
         <CascadingValue Value="ElUser" Name="ElUserAll">
-
-            @if (ElUser == null || ElUser.OrgId.Length < 10)
-            {
-                <div class="spinner">
-                    User
-                </div>
-            }
-            else
-            {
-                <RadzenTabs>
-                    <Tabs>
-                        <RadzenTabsItem Text="Nombres">
-                            <NombresList />
-                        </RadzenTabsItem>
-
-                        <RadzenTabsItem Text="Organizaciones">
-                            <OrgList />
-                        </RadzenTabsItem>
-                        <RadzenTabsItem Text="Usuarios">
-                            <UsuariosList SoloLista="false" />
-                        </RadzenTabsItem>
-
-                        <RadzenTabsItem Text="Paises">
-                            <PaisesList />
-
-                        </RadzenTabsItem>
-                        <RadzenTabsItem Text="Servicios">
-                            <ServiciosList />
-
-                        </RadzenTabsItem>
-                    </Tabs>
-                </RadzenTabs>
-                            }
-            </CascadingValue>
+            
+                @if (ElUser == null || ElUser.OrgId.Length < 10)
+                {
+                    <div class="spinner">
+                        User
+                    </div>
+                }
+                else
+                {
+                    <RadzenTabs @bind-SelectedIndex="IndexTabAll">
+                        <Tabs>
+                            
+                                <RadzenTabsItem Text="Nombres">
+                                    <NombresList 
+                                                 ReadNENombres="ReadLosNombresAll" LosNombres="LosNombresAll"
+                                                 ReadNEPaises="ReadPaisesAll" LosPaises="LosPaisesAll"
+                                                 ReadNEConfig="ReadLosConfigsAll" LosConfigs="LosConfigsAll"/>
+                                </RadzenTabsItem>
+                            
+                                <RadzenTabsItem Text="Organizaciones">
+                                    <OrgList 
+                                             ReadallOrgs="ReadLasOrgsAll" LasOrgs="LasOrgsAll"
+                                             ReadallUser="ReadLosUsersAll" LosUsers="LosUsersAll"
+                                             />
+                                </RadzenTabsItem>
+                            
+                                <RadzenTabsItem Text="Usuarios">
+                                    <UsuariosList SoloLista="false" 
+                                                  ReadallOrg="ReadLasOrgsAll" LasOrgs="LasOrgsAll"
+                                                  ReadallUser="ReadLosUsersAll" LosUsers="LosUsersAll"/>
+                                </RadzenTabsItem>
+                            
+                                <RadzenTabsItem Text="Servicios">
+                                    <ServiciosList 
+                                                   ReadOrganizaciones="ReadLasOrgsAll" LasOrgs="LasOrgsAll"
+                                                   ReadServicios="ReadLosServiciosAll" LosServicios="LosServiciosAll"/>
+                                </RadzenTabsItem>
+                            
+                                <RadzenTabsItem Text="Paises">
+                                    <PaisesList 
+                                                ReadPaises="ReadPaisesAll" LosPaises="LosPaisesAll"/>
+                                </RadzenTabsItem>
+                            
+                                <RadzenTabsItem Text="Etiquetas">
+                                    <ZConfigList 
+                                                 ReadallConfig="ReadLosConfigsAll" LosConfigs="LosConfigsAll"
+                                                 ReadallUser="ReadLosUsersAll" LosUsers="LosUsersAll"/>
+                                </RadzenTabsItem>
+                            
+                        </Tabs>
+                    </RadzenTabs>
+                }
+            
+        </CascadingValue>
     </Authorized>
 
     <NotAuthorized>

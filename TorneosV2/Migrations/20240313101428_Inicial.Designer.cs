@@ -11,8 +11,8 @@ using TorneosV2.Data;
 namespace TorneosV2.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240302000156_Inicial3")]
-    partial class Inicial3
+    [Migration("20240313101428_Inicial")]
+    partial class Inicial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -561,13 +561,18 @@ namespace TorneosV2.Migrations
                     b.Property<string>("Observacion")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Pais")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<bool>("Status")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Tipo")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Valor")
                         .IsRequired()
@@ -653,6 +658,9 @@ namespace TorneosV2.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Observacion")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Parentesco")
                         .IsRequired()

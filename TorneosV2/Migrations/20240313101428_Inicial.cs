@@ -207,6 +207,7 @@ namespace TorneosV2.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Telefono = table.Column<string>(type: "varchar(5)", maxLength: 5, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Favorito = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Estado = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
@@ -231,29 +232,6 @@ namespace TorneosV2.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Registros", x => x.RegistroId);
-                })
-                .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "Servicios",
-                columns: table => new
-                {
-                    ServicioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Clave = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Titulo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Tipo = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Observaciones = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    Estado = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Servicios", x => x.ServicioId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -418,7 +396,9 @@ namespace TorneosV2.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     NombreId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    Tipo = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                    Pais = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Tipo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Valor = table.Column<string>(type: "varchar(75)", maxLength: 75, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
@@ -450,6 +430,8 @@ namespace TorneosV2.Migrations
                     ParienteId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Parentesco = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observacion = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Estado = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
@@ -485,6 +467,37 @@ namespace TorneosV2.Migrations
                     table.PrimaryKey("PK_Bitacora", x => x.BitacoraId);
                     table.ForeignKey(
                         name: "FK_Bitacora_Organizaciones_OrgId",
+                        column: x => x.OrgId,
+                        principalTable: "Organizaciones",
+                        principalColumn: "OrgId",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Servicios",
+                columns: table => new
+                {
+                    ServicioId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    OrgId = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Clave = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Titulo = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Tipo = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Observaciones = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Estado = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "tinyint(1)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Servicios", x => x.ServicioId);
+                    table.ForeignKey(
+                        name: "FK_Servicios_Organizaciones_OrgId",
                         column: x => x.OrgId,
                         principalTable: "Organizaciones",
                         principalColumn: "OrgId",
@@ -776,6 +789,11 @@ namespace TorneosV2.Migrations
                 column: "SolicitudContactoId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Servicios_OrgId",
+                table: "Servicios",
+                column: "OrgId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SolDetalles_NombreId",
                 table: "SolDetalles",
                 column: "NombreId");
@@ -869,10 +887,10 @@ namespace TorneosV2.Migrations
                 name: "Solicitudes");
 
             migrationBuilder.DropTable(
-                name: "Organizaciones");
+                name: "Servicios");
 
             migrationBuilder.DropTable(
-                name: "Servicios");
+                name: "Organizaciones");
         }
     }
 }

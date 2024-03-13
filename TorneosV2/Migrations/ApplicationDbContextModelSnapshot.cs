@@ -558,13 +558,18 @@ namespace TorneosV2.Migrations
                     b.Property<string>("Observacion")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Pais")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<bool>("Status")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Tipo")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Valor")
                         .IsRequired()
@@ -650,6 +655,9 @@ namespace TorneosV2.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Observacion")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("Parentesco")
                         .IsRequired()

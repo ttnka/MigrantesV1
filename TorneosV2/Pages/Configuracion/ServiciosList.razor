@@ -5,7 +5,7 @@
 @using static TorneosV2.Modelos.MyFunc;
 
 
-@if (LosServicios != null && !Leyendo)
+@if (LosServicios != null)
 {
     <RadzenDataGrid @ref="ServiciosGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
@@ -16,15 +16,15 @@
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
-            @if (ElUser.Nivel > 6)
+            @if (ElUser.Nivel > 4)
             {
                 <RadzenButton Icon="refresh" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Success" Click="InsertRow">
-                    @BtnNewText
+                    Nuevo Servicio
                 </RadzenButton>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Info" Click="LeerServicios">
+                          ButtonStyle="ButtonStyle.Info" Click="DetReadServicios">
                 Actualizar
             </RadzenButton>
         </HeaderTemplate>
@@ -33,34 +33,40 @@
 
         <Columns>
             <RadzenDataGridColumn TItem="Z380_Servicios" Title="Id"
-                                  Filterable="false" Width="50px">
+                                  Filterable="false" Width="70px">
                 <Template Context="datos">
                     @(LosServicios.IndexOf(datos) + 1)
                 </Template>
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z380_Servicios" Title="Clave" Filterable="true"
-                                  Width="100px" Property="Clave">
+                                  Width="125px" Property="Clave">
                 <Template Context="datos">
                     @datos.Clave
 
                 </Template>
                 <EditTemplate Context="datos">
-                    <RadzenTextBox Name="Clave" @bind-Value="datos.Clave" Style="width: 100%" /> <br />
-                    <RadzenLengthValidator Component="Clave" Min="2" Max="20"
+                    @if(datos.Estado == 3)
+                    { 
+                        <RadzenTextBox Name="Clave" @bind-Value="datos.Clave" Style="width: 100%" /> <br />
+                        <RadzenLengthValidator Component="Clave" Min="2" Max="20"
                                            Text="La Clave son 2 a 20 caracteres" />
-
+                    }
+                        else
+                    {
+                        <RadzenLabel>@datos.Clave</RadzenLabel>
+                    }
                 </EditTemplate>
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z380_Servicios" Title="Titulo" Property="Titulo"
-                                  Filterable="true" Width="150px">
+                                  Filterable="true" Width="200px">
                 <Template Context="datos">
                     <RadzenLabel> @datos.Titulo </RadzenLabel>
                 </Template>
                 <EditTemplate Context="datos">
                     <RadzenTextBox Name="Titulo" @bind-Value="datos.Titulo" Style="width: 90%" /> <br />
-                    <RadzenRequiredValidator Component="Titulo" Max="50" Text="El titulo es Obligatorio." />
+                    <RadzenRequiredValidator Component="Titulo" Min="1" Max="50" Text="El titulo es Obligatorio." />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
@@ -74,8 +80,8 @@
                 </Template>
 
                 <EditTemplate Context="datos">
-                    <RadzenTextBox Name="Telefono" @bind-Value="datos.Tipo" Style="width: 90%" /><br />
-                    <RadzenRequiredValidator Component="Telefono" Min="2" Max="25" Text="El tipo es Obligatorio." />
+                    <RadzenTextBox Name="Tipo" @bind-Value="datos.Tipo" Style="width: 90%" /><br />
+                    <RadzenRequiredValidator Component="Tipo" Min="2" Max="25" Text="El tipo es Obligatorio." />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
@@ -85,12 +91,12 @@
                     <RadzenLabel> @datos.Observaciones </RadzenLabel>
                 </Template>
                 <EditTemplate Context="datos">
-                    <RadzenTextBox Name="Observaciones" @bind-Value="datos.Observaciones" Style="width: 90%" /><br />
+                    <RadzenTextArea Name="Observaciones" @bind-Value="datos.Observaciones" Style="width: 90%" /><br />
 
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z380_Servicios" Title="Organizaciones"
+            <RadzenDataGridColumn TItem="Z380_Servicios" Title="Organizacion"
                                   Filterable="false" Width="250px">
                 <Template Context="datos">
                     <RadzenLabel> @datos.Org.Comercial </RadzenLabel>
@@ -98,7 +104,7 @@
                 <EditTemplate Context="datos">
                     @if (ElUser.Nivel < 6)
                     {
-                        <RadzenLabel>@datos.Org.Comercial</RadzenLabel>
+                        <RadzenLabel>@ElUser.Org.Comercial</RadzenLabel>
                     }
                     else
                     {
@@ -161,7 +167,7 @@
 else
 {
     <div class="spinner">
-        pais
+        servicio
     </div>
 }
 
@@ -183,7 +189,7 @@ else
     async void OnUpdateRow(Z380_Servicios serv)
     {
         if (serv == servToInsert) servToInsert = null!;
-
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
         Editando = !Editando;
         ApiRespuesta<Z380_Servicios> resultado = await Servicio(ServiciosTipos.Update, serv);
 
@@ -194,11 +200,11 @@ else
         {
             ShowNotification(ElMsn("info", "Actualizo",
                 $"Se actualizo la informacion del servicio {serv.Titulo}", 0));
-            txt = $"{TBita}, Se actualizo la info del servicio {serv.Titulo}";
+            txt = $"{TBita}, Se actualizo la info del servicio {serv.Titulo} " + txt;
 
             Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
-            bitaT.OrgAdd(ElUser.Org);
-            await BitacoraAll(bitaT);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -211,9 +217,8 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, false);
             await LogAll(logTemp);
-            await ServiciosGrid!.Reload();
         }
-
+        await ServiciosGrid!.Reload();
     }
 
     async Task SaveRow(Z380_Servicios serv)
@@ -241,7 +246,11 @@ else
     async void OnCreateRow(Z380_Servicios serv)
     {
         if (serv == servToInsert) servToInsert = null!;
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
+        var o = ElUser.Nivel < 6 || !LasOrgs.Any(x=>x.OrgId == serv.OrgId) ? ElUser.Org :
+        LasOrgs.FirstOrDefault(x => x.OrgId == serv.OrgId);
 
+        serv.OrgAdd(o!);
         Editando = !Editando;
         ApiRespuesta<Z380_Servicios> resultado = await Servicio(ServiciosTipos.Insert, serv);
 
@@ -254,9 +263,10 @@ else
             ShowNotification(ElMsn("Exito", "Nuevo servicio",
                 $"Se creo un nuevo registro de servicios {serv.Titulo}", 0));
 
+            txt = $"{TBita}, Se agrego un servicio {serv.Titulo} " + txt;
             Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
-            bitaT.OrgAdd(ElUser.Org);
-            await BitacoraAll(bitaT);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -269,9 +279,6 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, true);
             await LogAll(logTemp);
-
-            await ServiciosGrid!.Reload();
-
         }
 
     }

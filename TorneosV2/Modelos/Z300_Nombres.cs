@@ -26,8 +26,8 @@ namespace TorneosV2.Modelos
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
         
-        public string Completo => Nombre + " " + Paterno + " " + Materno; 
-        public Z300_Nombres() { }
+        public string Completo => Nombre + " " + Paterno + " " + Materno;
+        public string PMN => Paterno + " " + Materno + " " + Nombre + " " + Apodo;
 
         public virtual ICollection<Z302_Contactos> Contactos { get; set; } = new List<Z302_Contactos>();
 

@@ -4,7 +4,7 @@
 @using static TorneosV2.Modelos.MyFunc;
 
 
-@if (LosDatos != null && !Leyendo)
+@if (LosDatos != null)
 {
     <RadzenDataGrid @ref="FilesGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
@@ -126,16 +126,12 @@ else
 
 
 @code {
+    Z170_Files ArchivoToInsert = new("", "", "","", 3, false);
 
     void Cancelar()
     {
-        //OrgNew = new();
         ArchivoToInsert = new("", "", "", "", 3, false);
     }
-
-
-    Z170_Files ArchivoToInsert = new("", "", "","", 3, false);
-
 
     async Task EditRow(Z170_Files archivo)
     {
@@ -157,9 +153,11 @@ else
         {
             ShowNotification(ElMsn("info", "Actualizo",
                 $"Se actualizo la info del archivo {archivo.Titulo}", 0));
-            txt = $"{TBita}, Se actualizo la info de archivo ";
+
+            txt = $"{TBita}, Se actualizo la info de archivo " + txt;
             Z190_Bitacora bitaTemp = new(ElUser.UserId, txt, ElUser.OrgId);
-            await BitacoraAll(bitaTemp);
+            BitacoraMas(bitaTemp);
+            await BitacoraWrite();
         }
         else
         {
@@ -168,7 +166,7 @@ else
             { etxt += $", {e}"; }
 
             ShowNotification(ElMsn("Error", "Error", etxt, 4000));
-            txt = $"{TBita}, No se actualizo un registro de CAMPO" + txt + ", ";
+            txt = $"{TBita}, No se actualizo un registro de Archivo" + txt + ", ";
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, false);
             await LogAll(logTemp);
@@ -218,8 +216,10 @@ else
             ShowNotification(ElMsn("Exito", "Nuevo requerimiento de archivo",
                 $"Se creo un nuevo registro de archivo {archivo.Titulo}", 0));
 
-            Z190_Bitacora bitaTemp = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
-            await BitacoraAll(bitaTemp);
+            txt = $"{TBita}, Se agrego la info de archivo " + txt;
+            Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -232,13 +232,9 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, true);
             await LogAll(logTemp);
-
             await FilesGrid!.Reload();
 
         }
-
-
-
     }
 
     public void ShowNotification(NotificationMessage message)

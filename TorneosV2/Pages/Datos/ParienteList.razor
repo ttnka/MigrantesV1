@@ -1,96 +1,104 @@
 ﻿
-@inherits ContactoListBase
+@inherits ParienteListBase
 @inject NotificationService NS
 @using TorneosV2.Modelos
 @using static TorneosV2.Modelos.MyFunc;
 
-@if (LosCVContactos != null)
+@if (LosParientes != null)
 {
-    <RadzenDataGrid @ref="ContactosGrid"
+    <RadzenDataGrid @ref="ParientesGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
                     AllowSorting="true" AllowColumnResize="true"
                     ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
                     EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
-                    Data="@LosCVContactos" TItem="Z302_Contactos"
+                    Data="@LosParientes" TItem="Z309_Pariente"
                     RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
 
         <HeaderTemplate>
             @if (ElUser.Nivel > 3)
-                {
+            {
                 <RadzenButton Icon="refresh" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Success" Click="InsertRow">
                     Agrega dato
                 </RadzenButton>
-                }
+            }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Info" Click="DetReadConstacos">
+                          ButtonStyle="ButtonStyle.Info" Click="LeerParientes">
                 Actualizar
             </RadzenButton>
             <RadzenLabel>@ElNombre.Completo</RadzenLabel>
-            @if (ElNombre.Apodo != null) {<RadzenLabel>@ElNombre.Apodo</RadzenLabel>}
+            @if (ElNombre.Apodo != null)
+            {<RadzenLabel>@ElNombre.Apodo</RadzenLabel>}
         </HeaderTemplate>
 
         <!-- AQUI EMPIEZA REPORTE-->
 
         <Columns>
-            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Id"
+            <RadzenDataGridColumn TItem="Z309_Pariente" Title="Id"
                                   Filterable="false" Width="50px">
                 <Template Context="datos">
-                    @(LosCVContactos.IndexOf(datos) + 1)
+                    @(LosParientes.IndexOf(datos) + 1)
                 </Template>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Tipo" Filterable="true"
-                                  Width="125px" Property="Tipo">
+            <RadzenDataGridColumn TItem="Z309_Pariente" Title="Pariente" Filterable="true"
+                                  Width="150px" Property="Tipo">
                 <Template Context="datos">
-                   
-                    <RadzenLabel>@datos.Tipo</RadzenLabel>        
+                    @if(LosNombresAll.Any(x=>x.NombreId == datos.ParienteId))
+                        {
+                            <RadzenLabel>
+                                @LosNombresAll.FirstOrDefault(x => x.NombreId == datos.ParienteId)!.PMN
+                            </RadzenLabel>
+
+                        }
+                        else
+                        {
+                            <RadzenLabel>Sin datos!</RadzenLabel>
+                        }
                 </Template>
                 <EditTemplate Context="datos">
-                    @if (laHelp != "")
-                        {<RadzenLabel>@laHelp</RadzenLabel><br /> }
-                    <RadzenDropDown Name="Tipo" Data=LosCVTipos @bind-Value=@datos.Tipo Change="changeHelp"
-                                    ValueProperty="Titulo" TextProperty="Titulo" AllowClear="false"
+                    <RadzenDropDown Name="ParienteId" Data=LosActivos @bind-Value=@datos.ParienteId
+                                    ValueProperty="NombreId" TextProperty="PMN" AllowClear="false"
+                                    Style="width: 90%;" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="Z309_Pariente" Title="Parentesco" Filterable="true"
+                                  Width="150px" Property="Parentesco">
+                <Template Context="datos">
+                    @if (Parentescos.Any(x => x.Key == datos.Parentesco))
+                    {
+                        <RadzenLabel>
+                            @Parentescos.FirstOrDefault(x => x.Key == datos.Parentesco).Value
+                        </RadzenLabel>
+                    }
+                        else
+                    {   
+                        <RadzenLabel>No hay datos!</RadzenLabel>
+
+                    }
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Parientesco" Data=Parentescos @bind-Value=@datos.Parentesco
+                                    ValueProperty="Key" TextProperty="Value" AllowClear="false"
                                     Style="width: 90%;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Valor" Filterable="true"
-                                  Width="250px" Property="Valor">
-                <Template Context="datos">
-                     @if(datos.Pais.Length > 10 && LosCVPaises.Any(x=>x.PaisId == datos.Pais))
-                        { <RadzenLabel>@LosCVPaises.FirstOrDefault(x=>x.PaisId == datos.Pais)!.ClaveTel</RadzenLabel>}
-                    <RadzenLabel>@datos.Valor </RadzenLabel>
-
-                </Template>
-                <EditTemplate Context="datos">
-                    @if(datos.Tipo.Contains("Tel"))
-                        {<RadzenDropDown Name="Pais" Data=LosCVPaises @bind-Value=@datos.Pais
-                                ValueProperty="PaisId" TextProperty="ClaveTel" AllowClear="false"
-                                Style="width: 100%;" />
-                                <br />}
-                    <RadzenTextBox Name="Valor" @bind-Value="datos.Valor" Placeholder="Algun valor"
-                                   Style="width: 100%" />
-                    
-                    <RadzenLengthValidator Component="Valor" Min="1" Max="75"
-                                           Text="Algun dato es requerido en valor, con maximo 75 caracteres" />
-
-                </EditTemplate>
-            </RadzenDataGridColumn>
-
-            <RadzenDataGridColumn TItem="Z302_Contactos" Title="Observaciones" Property="Observaciones"
+            <RadzenDataGridColumn TItem="Z309_Pariente" Title="Observaciones" Property="Observaciones"
                                   Filterable="true" Width="150px">
                 <Template Context="datos">
                     <RadzenLabel> @datos.Observacion</RadzenLabel>
-                    
+
                 </Template>
                 <EditTemplate Context="datos">
                     <RadzenTextArea Name="Observacion" @bind-Value="datos.Observacion" Placeholder="Comentarios"
-                                   Style="width: 100%" />
+                                    Style="width: 100%" />
                 </EditTemplate>
             </RadzenDataGridColumn>
 
-            <RadzenDataGridColumn TItem="Z302_Contactos" Context="sampleBlazorModelsSampleOrder"
+            <RadzenDataGridColumn TItem="Z309_Pariente" Context="sampleBlazorModelsSampleOrder"
                                   Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
                                   Width="250px" Title="Estado">
                 <Template Context="datos">
@@ -146,43 +154,35 @@ else
 
 
 @code {
-    Z302_Contactos contToInsert = new() { Estado = 3 };
+    Z309_Pariente pariToInsert = new() { Estado = 3 };
 
-    string laHelp = "";
-    void changeHelp()
+    async Task EditRow(Z309_Pariente pari)
     {
-        laHelp = "";
-        if (LosCVTipos == null || !LosCVTipos.Any() || contToInsert == null) return;
-        var tTmp = LosCVTipos.FirstOrDefault(x => x.Tipo == contToInsert.Tipo);
-        if (tTmp == null || string.IsNullOrEmpty(tTmp.Txt)) return;
-        laHelp = tTmp.Txt;
-    }
-
-    async Task EditRow(Z302_Contactos cont)
-    {
-        await ContactosGrid!.EditRow(cont);
+        await ParientesGrid!.EditRow(pari);
         Editando = !Editando;
     }
 
-    async void OnUpdateRow(Z302_Contactos cont)
+    async void OnUpdateRow(Z309_Pariente pari)
     {
-        if (cont == contToInsert) contToInsert = null!;
-        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
+        if (pari == pariToInsert) pariToInsert = null!;
+
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
         Editando = !Editando;
-        cont.Valor = Recortar(cont.Tipo, cont.Valor);
+        ApiRespuesta<Z309_Pariente> resultado = await Servicio(ServiciosTipos.Update, pari);
 
-        ApiRespuesta<Z302_Contactos> resultado = await Servicio(ServiciosTipos.Update, cont);
+        string txt = $"Nombre: {ElNombre.Completo} con ";
 
-        string txt = $"Valor: {cont.Valor} de {ElNombre.Completo} ";
-        txt += $"Observaciones: {cont.Observacion} ";
-        txt += cont.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+        txt += LosNombresAll.Any(x => x.NombreId == pari.NombreId) ?
+                LosNombresAll.FirstOrDefault( z => z.NombreId == pari.ParienteId)!.Completo : " ";
+
+        txt += $"Observaciones: {pari.Observacion} ";
+        txt += pari.Status ? "Estatus: Activo" : "Estatus: Suspendido";
 
         if (resultado.Exito)
         {
             ShowNotification(ElMsn("Ok", "Actualizo",
-                $"Se actualizo la informacion del tipo {cont.Tipo} ", 0));
-
-            txt = $"{TBita}, Se actualizo la informacion de tipo {cont.Tipo} " + txt;
+                $"Se actualizo la informacion del parentesco {pari.Parentesco} ", 0));
+            txt = $"{TBita}, Se actualizo la informacion del parentesco {pari.Parentesco} " + txt;
 
             Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
             BitacoraMas(bitaT);
@@ -190,65 +190,69 @@ else
         }
         else
         {
-            string etxt = $"Error No Se actualizo el tipo {cont.Tipo}";
+            string etxt = $"Error No Se actualizo el tipo {pari.Parentesco} de nombre: {ElNombre.Completo} ";
+
             foreach (var e in resultado.MsnError)
             { etxt += $", {e}"; }
 
             ShowNotification(ElMsn("Error", "Error", etxt, 4000));
-            txt = $"{TBita}, No se actualizo un registro de nombre" + txt + ", ";
+            txt = $"{TBita}, No se actualizo un registro de parentesco" + txt + ", ";
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, false);
             await LogAll(logTemp);
         }
     }
 
-    async Task SaveRow(Z302_Contactos cont)
+    async Task SaveRow(Z309_Pariente pari)
     {
-        await ContactosGrid!.UpdateRow(cont);
+        await ParientesGrid!.UpdateRow(pari);
     }
 
-    void CancelEdit(Z302_Contactos cont)
+    void CancelEdit(Z309_Pariente pari)
     {
-        if (cont == contToInsert) contToInsert = null!;
+        if (pari == pariToInsert) pariToInsert = null!;
 
         Editando = !Editando;
-        ContactosGrid!.CancelEditRow(cont);
+        ParientesGrid!.CancelEditRow(pari);
     }
 
     async Task InsertRow()
     {
-        contToInsert = new() { Estado = 3 };
+        pariToInsert = new() { Estado = 3 };
         Editando = !Editando;
-        await ContactosGrid!.InsertRow(contToInsert);
+        await ParientesGrid!.InsertRow(pariToInsert);
     }
 
-
-    async void OnCreateRow(Z302_Contactos cont)
+    async void OnCreateRow(Z309_Pariente pari)
     {
         ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
-        if (cont == contToInsert) contToInsert = null!;
+        if (pari == pariToInsert) pariToInsert = null!;
 
         Editando = !Editando;
-        cont.Valor = Recortar(cont.Tipo, cont.Valor);
-        cont.Estado = 1;
-        ApiRespuesta<Z302_Contactos> resultado = await Servicio(ServiciosTipos.Insert, cont);
+        pari.Estado = 1;
+        ApiRespuesta<Z309_Pariente> resultado = await Servicio(ServiciosTipos.Insert, pari);
 
-        string txt = $"Valor: {cont.Valor} de {ElNombre.Completo} ";
-        txt += $"Observaciones: {cont.Observacion} ";
-        txt += cont.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+        string txt = $"Nombre: {ElNombre.Completo} con ";
+
+        txt += LosNombresAll.Any(x => x.NombreId == pari.NombreId) ?
+                LosNombresAll.FirstOrDefault(z => z.NombreId == pari.ParienteId)!.Completo : " ";
+
+        txt += $"Observaciones: {pari.Observacion} ";
+        txt += pari.Status ? "Estatus: Activo" : "Estatus: Suspendido";
 
         if (resultado.Exito)
         {
-            ShowNotification(ElMsn("Exito", "Nuevo dato de contacto",
-                $"Se creo un nuevo dato de contacto {cont.Tipo} ", 0));
-            txt = $"{TBita}, Se creo el registro de tipo {cont.Tipo} " + txt;
+            ShowNotification(ElMsn("Exito", "Nuevo dato de parentesco",
+                $"Se creo un nuevo dato de parentesco {pari.Parentesco} ", 0));
+
+            txt = $"{TBita}, Se actualizo la informacion del parentesco {pari.Parentesco} " + txt;
             Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
             BitacoraMas(bitaT);
             await BitacoraWrite();
         }
         else
         {
-            string etxt = $"Error NO se agrego un nuevo dato {cont.Tipo}    ";
+            string etxt = $"Error NO se agrego un nuevo dato parentesco {pari.Parentesco} nombre: {ElNombre.Completo} ";
             foreach (var e in resultado.MsnError)
             { etxt += $", {e}"; }
 
@@ -264,6 +268,4 @@ else
     {
         NS.Notify(message);
     }
-
-
 }

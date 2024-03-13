@@ -9,25 +9,37 @@ using static TorneosV2.Modelos.MyFunc;
 
 namespace TorneosV2.Pages.Sistema
 {
-	public class OrgListBase : ComponentBase
-	{
+    public class OrgListBase : ComponentBase
+    {
         public const string TBita = "Listado de organizaciones";
+        
 
+        // Event Call Back
+        
+        [Parameter]
+        public EventCallback ReadallUser { get; set; }
+        [Parameter]
+        public EventCallback ReadallOrgs { get; set; }
+
+
+        // Listados y Clases
+        [Parameter]
+        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
+        [Parameter]
+        public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
+        [Parameter]
+        public List<ZConfig> LosConfigs { get; set; } = new List<ZConfig>();
+        public LaOrgNew OrgNew { get; set; } = new();
+
+        // Servicios Insertados
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
         [Inject]
         public IEnviarMail ReenviarMail { get; set; } = default!;
         [Inject]
-        public Repo<ZConfig, ApplicationDbContext> ZConfigRepo { get; set; } = default!;
-        [Inject]
         public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
         [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
-
-        // Listados y Clases
-        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
-        public LaOrgNew OrgNew { get; set; } = new();
-        public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
 
         public List<KeyValuePair<string, string>> TipoOrgs { get; set; } =
             new List<KeyValuePair<string, string>>();
@@ -35,6 +47,7 @@ namespace TorneosV2.Pages.Sistema
         public RadzenDataGrid<Z100_Org>? OrgsGrid { get; set; } = new RadzenDataGrid<Z100_Org>();
         public RadzenTemplateForm<LaOrgNew>? OrgForm { get; set; } = new RadzenTemplateForm<LaOrgNew>();
 
+        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
         protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
@@ -50,9 +63,9 @@ namespace TorneosV2.Pages.Sistema
             {
                 Leer();
                 Primera = false;
+                Z190_Bitacora bita = new(ElUser.UserId, $"{TBita}, Se consulto el listado de organizaciones", ElUser.OrgId);
+                BitacoraMas(bita);
             }
-
-           await LeerOrgs();
         }
 
         protected void Leer()
@@ -67,28 +80,12 @@ namespace TorneosV2.Pages.Sistema
             }
         }
 
-        protected async Task LeerOrgs()
+        protected async Task DetReadallOrgs()
         {
-            try
-            {
-                //en lista las org para usuarios nivel 6 o superior
-                IEnumerable<Z100_Org> resp = await OrgRepo.Get(x =>
-                x.OrgId == (ElUser.Nivel < 6 ? ElUser.OrgId : x.OrgId));
-
-                LasOrgs = resp.ToList();
-
-                IEnumerable<Z110_User> temp = await UserRepo.GetAll();
-                LosUsers = temp.Any() ? temp.ToList() : LosUsers;
-
+            await ReadallOrgs.InvokeAsync();
+            await ReadallUser.InvokeAsync();
                 Z190_Bitacora bitaTemp = new(ElUser.UserId, $"Consulto la seccion de {TBita}", ElUser.OrgId);
-                bitaTemp.OrgAdd(ElUser.Org);
-                await BitacoraAll(bitaTemp);
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs logT = new(ElUser.UserId, $"Error al intentar leer las organizaciones en {TBita}", false);
-                await LogAll(logT);
-            }    
+                BitacoraMas(bitaTemp);
         }
 
         protected async Task<ApiRespuesta<Z100_Org>> Servicio(ServiciosTipos tipo, Z100_Org org)
@@ -113,7 +110,6 @@ namespace TorneosV2.Pages.Sistema
                     resp.Data = orgUpdated;
                 }
             }
-
             return resp;
         }
 
@@ -137,7 +133,7 @@ namespace TorneosV2.Pages.Sistema
                     tmpUser.Nivel = userNew.Data.Nivel;
                     tmpUser.OrgId = userNew.Data.OrgId;
                     tmpUser.OldEmail = userNew.Data.Mail;
-                    tmpUser.Nivel = 3;
+                    tmpUser.Nivel = userNew.Data.Nivel;
                     tmpUser.Status = true;
 
                     tmpUser.Org = orgNewResp;
@@ -225,8 +221,9 @@ namespace TorneosV2.Pages.Sistema
 
         protected async Task<ApiRespuesta<MailCampos>> EnviarEmail (string Nombre, string Mail, string Pass, string Org)
         {
-            var infoMailCampos = await ZConfigRepo.Get(x => x.Grupo == "Email" && x.Tipo ==
+            var infoMailCampos = LosConfigs.Where(x => x.Grupo == "Email" && x.Tipo ==
                 "Organizacion" && x.Status == true);
+            
             infoMailCampos = infoMailCampos.OrderByDescending(x => x.Fecha1);
 
             MailCampos mc = new();
@@ -249,7 +246,6 @@ namespace TorneosV2.Pages.Sistema
             mc.Cuerpo += $"En tu primera visita sera necesario que cambies este password ";
 
             ApiRespuesta<MailCampos> resp = await ReenviarMail.EnviarMail(mc, true);
-
             return resp;
         }
 
@@ -292,13 +288,18 @@ namespace TorneosV2.Pages.Sistema
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            if (bita.BitacoraId != LastBita.BitacoraId)
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+                bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
+        }
+        public async Task BitacoraWrite()
+        {
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
         }
 
         public async Task LogAll(Z192_Logs log)

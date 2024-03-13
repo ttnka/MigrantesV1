@@ -20,6 +20,7 @@ namespace TorneosV2.Modelos
 
         [StringLength(50)]
         public string Parentesco { get; set; } = "";
+        public string? Observacion { get; set; } = "";
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
 

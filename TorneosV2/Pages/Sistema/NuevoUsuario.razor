@@ -158,12 +158,10 @@
                         txt += " " + m;
                     }
                 }
-
                 Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
-                bitaT.OrgAdd(ElUser.Org);
-                await BitacoraAll(bitaT);
-
-                await LeerUsers();
+                BitacoraMas(bitaT);
+                await BitacoraWrite();
+                await DetReadallUsers();
 
             }
             else

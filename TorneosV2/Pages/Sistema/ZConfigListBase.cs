@@ -1,5 +1,4 @@
 ﻿using System;
-using MathNet.Numerics.Distributions;
 using Microsoft.AspNetCore.Components;
 using Radzen;
 using Radzen.Blazor;
@@ -9,64 +8,84 @@ using static TorneosV2.Modelos.MyFunc;
 
 namespace TorneosV2.Pages.Sistema
 {
-	public class FilesListBase : ComponentBase
+	public class ZConfigListBase : ComponentBase
 	{
-        public const string TBita = "Listado de archivos Imagenes y otros";
+        public const string TBita = "Listado de variables configuracion";
         
 
-        [Inject]
-        public Repo<Z170_Files, ApplicationDbContext> FileRepo { get; set; } = default!;
-
-        // Listas y clases
+        // Event Call Back
+        
         [Parameter]
-        public string ElRegistro { get; set; } = "";
-        public List<Z170_Files> LosDatos { get; set; } = new List<Z170_Files>();
-        public RadzenDataGrid<Z170_Files>? FilesGrid { get; set; } = new RadzenDataGrid<Z170_Files>();
+        public EventCallback ReadallConfig { get; set; }
+        [Parameter]
+        public EventCallback ReadallUser { get; set; }
+
+        //Listado de Valores
+        [Parameter]
+        public List<ZConfig> LosConfigs { get; set; } = new List<ZConfig>();
+        [Parameter]
+        public List<ZConfig> LosGrupos { get; set; } = new List<ZConfig>();
+        [Parameter]
+        public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
+
+        // Servicios Insertados
+        [Inject]
+        public Repo<ZConfig, ApplicationDbContext> ZConfigRepo { get; set; } = default!;
+        
+        
+        public RadzenDataGrid<ZConfig>? ConfigsGrid { get; set; } =
+                                        new RadzenDataGrid<ZConfig>();
 
         protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
         protected bool Editando { get; set; } = false;
+        public string Msn { get; set; } = "";
 
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
+                LeerGrupos();
                 Primera = false;
-                
+                Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, Se consulto el listado de varialbes", ElUser.OrgId);
+                BitacoraMas(bitaT);
             }
-
-            await Leer();
         }
 
-        protected async Task Leer()
+        protected void LeerGrupos()
         {
-            if (ElRegistro == "") return;
-            IEnumerable<Z170_Files> resp = await FileRepo.Get(x => x.RegistroId == ElRegistro);
-            LosDatos = (resp != null && resp.Any()) ? resp.ToList() : new List<Z170_Files>();
-            Z190_Bitacora bitaT = new(ElUser.UserId, $"Consulto la seccion de {TBita}",  ElUser.OrgId);
-            BitacoraMas(bitaT);
+            LosGrupos = LosConfigs.Any(x => x.Grupo == "Grupos" && x.Tipo == "Encabezado" && x.Status == true) ?
+                LosConfigs.Where(x => x.Grupo == "Grupos" && x.Tipo == "Encabezado" && x.Status == true).ToList() :
+                new List<ZConfig>();
         }
 
-        protected async Task<ApiRespuesta<Z170_Files>> Servicio(ServiciosTipos tipo, Z170_Files archivo)
+        protected async Task DetReadConfigs()
         {
-            ApiRespuesta<Z170_Files> resp = new() { Exito = false };
-            
+            await ReadallConfig.InvokeAsync();
+            LeerGrupos();
+            await ReadallUser.InvokeAsync();
+        }
+
+        protected async Task<ApiRespuesta<ZConfig>> Servicio(ServiciosTipos tipo, ZConfig zcon)
+        {
+            ApiRespuesta<ZConfig> resp = new() { Exito = false };
+
             if (tipo == ServiciosTipos.Insert)
             {
-                Z170_Files fileUped = await FileRepo.Insert(archivo);
-                if (fileUped != null)
+                ZConfig zconNew = await ZConfigRepo.Insert(zcon);
+                if (zconNew != null)
                 {
                     resp.Exito = true;
-                    resp.Data = fileUped;
+                    resp.Data = zconNew;
                 }
             }
             if (tipo == ServiciosTipos.Update)
             {
-                Z170_Files fileUpDated = await FileRepo.Update(archivo);
-                if (fileUpDated != null)
+                ZConfig zconUpdated = await ZConfigRepo.Update(zcon);
+                if (zconUpdated != null)
                 {
                     resp.Exito = true;
-                    resp.Data = fileUpDated;
+                    resp.Data = zconUpdated;
                 }
             }
             return resp;
@@ -76,8 +95,6 @@ namespace TorneosV2.Pages.Sistema
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
-        [CascadingParameter(Name = "LaOrgAll")]
-        public Z100_Org LaOrg { get; set; } = default!;
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -132,7 +149,7 @@ namespace TorneosV2.Pages.Sistema
                 LastLog = log;
                 await LogRepo.Insert(log);
             }
-           
+
         }
         #endregion
 

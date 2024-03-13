@@ -12,54 +12,48 @@ namespace TorneosV2.Pages.Configuracion
 	{
         public const string TBita = "Listado de Servicios";
 
+        //Event Call Back
+        
+        [Parameter]
+        public EventCallback ReadOrganizaciones { get; set; }
+        [Parameter]
+        public EventCallback ReadServicios { get; set; }
+
+        // Servicios Injectados
         [Inject]
         public Repo<ZConfig, ApplicationDbContext> ZConfigRepo { get; set; } = default!;
         [Inject]
-        public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
-        [Inject]
         public Repo<Z380_Servicios, ApplicationDbContext> ServiciosRepo { get; set; } = default!;
 
+        // Parametros con valores
+        [Parameter]
         public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
+        [Parameter]
         public List<Z380_Servicios> LosServicios { get; set; } = new List<Z380_Servicios>();
+        public List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
 
         public RadzenDataGrid<Z380_Servicios>? ServiciosGrid { get; set; } =
                                         new RadzenDataGrid<Z380_Servicios>();
 
         protected bool Primera { get; set; } = true;
-        protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
-
-        protected bool AddFormShow { get; set; } = false;
-        protected bool BotonNuevo { get; set; } = false;
-        protected string BtnNewText { get; set; } = "Nuevo servicio";
         public string Msn { get; set; } = "";
-
 
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
-                await Leer();
-                await LeerServicios();
                 Primera = false;
+                Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, Se consulto el listado de servicios que se prestan", ElUser.OrgId);
+                BitacoraMas(bitaT);
             }
         }
 
-        protected async Task Leer()
-        {
-            var orgTmp = await OrgRepo.GetAll();
-            LasOrgs = orgTmp.Any() ? orgTmp.ToList() : LasOrgs;
-        }
+        
+        protected async Task DetReadOrganizaciones() => await ReadOrganizaciones.InvokeAsync();
 
-        protected async Task LeerServicios()
-        {
-            Leyendo = true;
-            var servTmp = await ServiciosRepo.Get(x => x.OrgId == (ElUser.Nivel < 6 ?
-                    ElUser.OrgId : x.OrgId));
-            LosServicios = servTmp.Any() ? servTmp.ToList() : LosServicios;
-            Leyendo = false;
-        }
-
+        protected async Task DetReadServicios() => await ReadServicios.InvokeAsync();
+           
         protected async Task<ApiRespuesta<Z380_Servicios>> Servicio(ServiciosTipos tipo, Z380_Servicios serv)
         {
             ApiRespuesta<Z380_Servicios> resp = new() { Exito = false };
@@ -82,10 +76,8 @@ namespace TorneosV2.Pages.Configuracion
                     resp.Data = servUpdated;
                 }
             }
-
             return resp;
         }
-
 
         #region Usuario y Bitacora
 
@@ -126,13 +118,18 @@ namespace TorneosV2.Pages.Configuracion
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            if (bita.BitacoraId != LastBita.BitacoraId)
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+                bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
+        }
+        public async Task BitacoraWrite()
+        {
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
         }
 
         public async Task LogAll(Z192_Logs log)

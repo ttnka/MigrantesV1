@@ -1,5 +1,4 @@
 ﻿using System;
-using MathNet.Numerics.Distributions;
 using Microsoft.AspNetCore.Components;
 using Radzen;
 using Radzen.Blazor;
@@ -7,68 +6,99 @@ using TorneosV2.Data;
 using TorneosV2.Modelos;
 using static TorneosV2.Modelos.MyFunc;
 
-namespace TorneosV2.Pages.Sistema
+namespace TorneosV2.Pages.Datos
 {
-	public class FilesListBase : ComponentBase
+	public class ParienteListBase : ComponentBase
 	{
-        public const string TBita = "Listado de archivos Imagenes y otros";
+        public const string TBita = "Listado de parientes";
         
 
-        [Inject]
-        public Repo<Z170_Files, ApplicationDbContext> FileRepo { get; set; } = default!;
 
-        // Listas y clases
+        [Inject]
+        public Repo<Z300_Nombres, ApplicationDbContext> NombreRepo { get; set; } = default!;
+
+        [Inject]
+        public Repo<Z309_Pariente, ApplicationDbContext> ParienteRepo { get; set; } = default!;
+
         [Parameter]
-        public string ElRegistro { get; set; } = "";
-        public List<Z170_Files> LosDatos { get; set; } = new List<Z170_Files>();
-        public RadzenDataGrid<Z170_Files>? FilesGrid { get; set; } = new RadzenDataGrid<Z170_Files>();
+        public Z300_Nombres ElNombre { get; set; } = default!;
+
+        protected List<KeyValuePair<string, string>> Parentescos { get; set; } =
+            new List<KeyValuePair<string, string>>();
+        protected List<Z309_Pariente> LosParientes { get; set; } = new List<Z309_Pariente>();
+        protected List<Z300_Nombres> LosNombresAll { get; set; } = new List<Z300_Nombres>();
+        protected List<Z300_Nombres> LosActivos { get; set; } = new List<Z300_Nombres>();
+
+        public RadzenDataGrid<Z309_Pariente>? ParientesGrid { get; set; } =
+                                        new RadzenDataGrid<Z309_Pariente>();
 
         protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
         protected bool Editando { get; set; } = false;
+        public string Msn { get; set; } = "";
 
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
                 Primera = false;
-                
+                Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita} se consulto el listado de parientes", ElUser.OrgId);
+                BitacoraMas(bitaT);
             }
-
-            await Leer();
         }
 
         protected async Task Leer()
         {
-            if (ElRegistro == "") return;
-            IEnumerable<Z170_Files> resp = await FileRepo.Get(x => x.RegistroId == ElRegistro);
-            LosDatos = (resp != null && resp.Any()) ? resp.ToList() : new List<Z170_Files>();
-            Z190_Bitacora bitaT = new(ElUser.UserId, $"Consulto la seccion de {TBita}",  ElUser.OrgId);
-            BitacoraMas(bitaT);
+            string[] pArre = Constantes.Parentescos.Split(",");
+            bool par = true;
+            for (var i = 0; i < pArre.Length; i++)
+            {
+                string txt = par ? pArre[i + 1] : pArre[i - 1];
+                Parentescos.Add(new KeyValuePair<string, string>
+                    (pArre[i], pArre[i] + " - " + txt ));
+                par = !par;
+            }
         }
 
-        protected async Task<ApiRespuesta<Z170_Files>> Servicio(ServiciosTipos tipo, Z170_Files archivo)
+        protected async Task LeerParientes()
         {
-            ApiRespuesta<Z170_Files> resp = new() { Exito = false };
-            
+            var pareTmp = await ParienteRepo.Get(x => x.NombreId == ElNombre.NombreId ||
+                            x.ParienteId == ElNombre.NombreId);
+            LosParientes = pareTmp.Any(x => x.NombreId == ElNombre.NombreId) ?
+                            pareTmp.Where(x => x.NombreId == ElNombre.NombreId).ToList() : LosParientes;
+            var nombresAll = await NombreRepo.GetAll();
+            LosNombresAll = nombresAll.Any() ? nombresAll.ToList() : LosNombresAll;
+
+            LosActivos = nombresAll.Any(x => x.Status == true && x.NombreId != ElNombre.NombreId &&
+                            !LosParientes.Any(z=>z.NombreId == x.NombreId)) ?
+                        nombresAll.Where(x => x.Status == true && x.NombreId != ElNombre.NombreId &&
+                            !LosParientes.Any(z=>z.NombreId == x.NombreId)).ToList() : LosActivos;
+        }
+
+        protected async Task<ApiRespuesta<Z309_Pariente>> Servicio(ServiciosTipos tipo, Z309_Pariente pari)
+        {
+            ApiRespuesta<Z309_Pariente> resp = new() { Exito = false };
+
             if (tipo == ServiciosTipos.Insert)
             {
-                Z170_Files fileUped = await FileRepo.Insert(archivo);
-                if (fileUped != null)
+                pari.NombreAdd(ElNombre);
+                Z309_Pariente pariNew = await ParienteRepo.Insert(pari);
+                if (pariNew != null)
                 {
                     resp.Exito = true;
-                    resp.Data = fileUped;
+                    resp.Data = pariNew;
                 }
             }
             if (tipo == ServiciosTipos.Update)
             {
-                Z170_Files fileUpDated = await FileRepo.Update(archivo);
-                if (fileUpDated != null)
+                Z309_Pariente pariUpdated = await ParienteRepo.Update(pari);
+                if (pariUpdated != null)
                 {
                     resp.Exito = true;
-                    resp.Data = fileUpDated;
+                    resp.Data = pariUpdated;
                 }
             }
+            
             return resp;
         }
 
@@ -76,8 +106,7 @@ namespace TorneosV2.Pages.Sistema
 
         [CascadingParameter(Name = "ElUserAll")]
         public Z110_User ElUser { get; set; } = default!;
-        [CascadingParameter(Name = "LaOrgAll")]
-        public Z100_Org LaOrg { get; set; } = default!;
+
 
         [Inject]
         public Repo<Z190_Bitacora, ApplicationDbContext> BitaRepo { get; set; } = default!;
@@ -132,9 +161,10 @@ namespace TorneosV2.Pages.Sistema
                 LastLog = log;
                 await LogRepo.Insert(log);
             }
-           
+
         }
         #endregion
+
 
     }
 }

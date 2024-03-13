@@ -13,17 +13,23 @@ namespace TorneosV2.Pages.Sistema
 	public class UsuariosListBase : ComponentBase 
 	{
         public const string TBita = "Listado de usuarios";
+        
 
+        // Event callback
+        [Parameter]
+        public EventCallback ReadallOrg { get; set; }
+        [Parameter]
+        public EventCallback ReadallUser { get; set; }
+
+        // Servicios Insertados
         [Inject]
         public IAddUser AddUserRepo { get; set; } = default!;
         [Inject]
         public IEnviarMail SendMail { get; set; } = default!;
         [Inject]
-        public Repo<Z100_Org, ApplicationDbContext> OrgRepo { get; set; } = default!;
-        [Inject]
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
 
-        // Parametro Importados
+        // Listado de valores
         [Parameter]
         public Z100_Org OrgIndy { get; set; } = default!;
         [Parameter]
@@ -31,21 +37,24 @@ namespace TorneosV2.Pages.Sistema
         [Parameter]
         public bool EsNuevoUser { get; set; } = true;
 
-        // Listados y Clases
+        
+        [Parameter]
+        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
+        [Parameter]
+        public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
+
+
         public AddUser NuevoUser { get; set; } = new("", "", "", "", "", "", "", "", "", 1, "", true);
         public Z110_User NuevoMisDatos { get; set; } = default!;
-        public List<Z100_Org> LasOrgs { get; set; } = new List<Z100_Org>();
-        public List<Z110_User> LosUsers { get; set; } = new List<Z110_User>();
         public List<Z100_Org> OrgDrop { get; set; } = new List<Z100_Org>();
-
         public List<KeyValuePair<int, string>> Niveles { get; set; } =
             new List<KeyValuePair<int, string>>();
 
         public RadzenDataGrid<Z110_User>? UsersGrid { get; set; } = new RadzenDataGrid<Z110_User>();
         public RadzenTemplateForm<AddUser>? UserForm { get; set; } = new RadzenTemplateForm<AddUser>();
-        
+
+        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
-        protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
 
         protected bool AddFormShow { get; set; } = false;
@@ -58,22 +67,18 @@ namespace TorneosV2.Pages.Sistema
         {
             if (Primera)
             {
-          
-                Leer();
-                
+                Leer();     
                 Primera = false;
+                Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, Se consulto listado de usuarios", ElUser.OrgId);
+                BitacoraMas(bitaT);
             }
-
-            await LeerUsers();
         }
 
         protected void Leer()
         {
-            Leyendo = true;
             if (!EsNuevoUser)
             {
                 NuevoUser.Nombre = ElUser.Nombre;
-
             }
             if (Niveles.Any()) return;
             string[] nTmp = Constantes.Niveles.Split(',');
@@ -81,7 +86,7 @@ namespace TorneosV2.Pages.Sistema
             {
                 Niveles.Add(new KeyValuePair<int, string>(i + 1, nTmp[i]));
             }
-            Leyendo = false;
+         
         }
 
         protected void AsignarMisDatos()
@@ -90,26 +95,20 @@ namespace TorneosV2.Pages.Sistema
             NuevoUser.Paterno = ElUser.Paterno;
         }
 
-        protected async Task LeerUsers()
+        protected async Task DetReadallUsers()
         {
-            Leyendo = true;
             try
             {
-                IEnumerable<Z110_User> UserTmp = await UserRepo.Get(x => x.OrgId == (SoloLista ?
-                                                    OrgIndy.OrgId : x.OrgId ));
-                LosUsers = UserTmp.Any() ? UserTmp.ToList() : LosUsers;
+                await ReadallUser.InvokeAsync();
+                LosUsers = LosUsers.Where(x => x.OrgId == (SoloLista ? OrgIndy.OrgId : x.OrgId)).ToList();
 
-                IEnumerable<Z100_Org> orgTmp = await OrgRepo.Get(x => x.Estado == (ElUser.Nivel < 6 ? 1 : x.Estado) &&
-                    x.OrgId == ( EsNuevoUser ? x.OrgId : ElUser.OrgId ));
- 
-                OrgDrop = orgTmp.Any() ? orgTmp.Where(x => x.OrgId ==
-                                                (SoloLista ? OrgIndy.OrgId : x.OrgId)).ToList() : OrgDrop;
-
-                LasOrgs = orgTmp.Any() ? orgTmp.ToList() : LasOrgs;
+                await ReadallOrg.InvokeAsync();
+                OrgDrop = LasOrgs.Where(x => x.OrgId == (SoloLista ? OrgIndy.OrgId : x.OrgId)).ToList();
+                LasOrgs = LasOrgs.Where(x => x.Estado == (ElUser.Nivel < 6 ? 1 : x.Estado) &&
+                    x.OrgId == (EsNuevoUser ? x.OrgId : ElUser.OrgId)).ToList();
 
                 Z190_Bitacora bitaT = new(ElUser.UserId, $"Se consulto el listado de usuarios {TBita}", ElUser.OrgId);
-                bitaT.OrgAdd(ElUser.Org);
-                await BitacoraAll(bitaT);
+                BitacoraMas(bitaT);
             }
             catch (Exception ex)
             {
@@ -117,7 +116,6 @@ namespace TorneosV2.Pages.Sistema
                     $"Error al intentar leer los usuarios o las organizaciones {TBita} {ex}", false);
                 await LogAll(logT);
             }
-            Leyendo = false;
         }
 
         protected void CheckPass()
@@ -259,24 +257,19 @@ namespace TorneosV2.Pages.Sistema
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            try
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                if (bita.BitacoraId != LastBita.BitacoraId)
-                {
-                    LastBita = bita;
-                    await BitaRepo.Insert(bita);
-                }
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = new(ElUser.UserId,
-                    $"Error al intentar escribir BITACORA, {TBita},{ex}", true);
-                await LogAll(LogT);
+                bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
         }
-
+        public async Task BitacoraWrite()
+        {
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
+        }
         public async Task LogAll(Z192_Logs log)
         {
             try

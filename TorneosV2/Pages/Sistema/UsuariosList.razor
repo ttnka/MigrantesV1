@@ -27,7 +27,7 @@
                 </RadzenButton>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Info" Click="LeerUsers">
+                          ButtonStyle="ButtonStyle.Info" Click="DetReadallUsers">
                 Actualizar
             </RadzenButton>
         </HeaderTemplate>
@@ -221,8 +221,8 @@ else
                     $"Se actualizo la info del usuario {user.Completo}", 0));
                 txt = $"{TBita}, Se actualizo la info del usuario {user.Completo}";
                 Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
-                bitaT.OrgAdd(ElUser.Org);
-                await BitacoraAll(bitaT);
+                BitacoraMas(bitaT);
+                await BitacoraWrite();
             }
             else
             {
@@ -235,8 +235,9 @@ else
                 txt += etxt;
                 Z192_Logs logTemp = new(ElUser.UserId, txt, false);
                 await LogAll(logTemp);
-                await UsersGrid!.Reload();
+                
             }
+            await UsersGrid!.Reload();
         }
         catch (Exception ex)
         {

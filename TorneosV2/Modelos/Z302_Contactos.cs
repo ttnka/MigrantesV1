@@ -14,6 +14,8 @@ namespace TorneosV2.Modelos
         [ForeignKey("NombreId")]
         public string NombreId { get; set; } = "";
         [StringLength(50)]
+        public string Pais { get; set; } = "";
+        [StringLength(50)]
         public string Tipo { get; set; } = "";
         [StringLength(75)]
         public string Valor { get; set; } = "";

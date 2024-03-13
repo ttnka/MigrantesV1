@@ -11,43 +11,43 @@ namespace TorneosV2.Pages.Configuracion
 	public class PaisesListBase : ComponentBase
     {
         public const string TBita = "Listado de Paises";
+        
 
-        [Inject]
-        public Repo<ZConfig, ApplicationDbContext> ZConfigRepo { get; set; } = default!;
+        // Event Call Back
+        [Parameter]
+        public EventCallback ReadPaises { get; set; }
+
+        // Servicios Insertados
         [Inject]
         public Repo<Z390_Pais, ApplicationDbContext> PaisRepo { get; set; } = default!;
 
+        // Listado de valores
+        [Parameter]
         public List<Z390_Pais> LosPaises { get; set; } = new List<Z390_Pais>();
 
         public RadzenDataGrid<Z390_Pais>? PaisGrid { get; set; } = new RadzenDataGrid<Z390_Pais>();
 
+        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
-        protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
 
-        protected bool AddFormShow { get; set; } = false;
-        protected bool BotonNuevo { get; set; } = false;
-        protected string BtnNewText { get; set; } = "Nuevo pais";
         public string Msn { get; set; } = "";
-
 
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
-                await LeerPaises();
                 Primera = false;
+                Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, Se consulto el listado de paises y claves telefonicas", ElUser.OrgId);
+                BitacoraMas(bitaT);
             }
         }
 
         protected void Leer() { }
 
-        protected async Task LeerPaises()
+        protected async Task DetReadPaises()
         {
-            Leyendo = true;
-            var paisesTmp = await PaisRepo.GetAll();
-            LosPaises = paisesTmp.Any() ? paisesTmp.ToList() : LosPaises;
-            Leyendo = false;
+            await ReadPaises.InvokeAsync();
         }
 
         protected async Task<ApiRespuesta<Z390_Pais>> Servicio(ServiciosTipos tipo, Z390_Pais pais)
@@ -72,7 +72,6 @@ namespace TorneosV2.Pages.Configuracion
                     resp.Data = paisUpdated;
                 }
             }
-
             return resp;
         }
 
@@ -116,13 +115,22 @@ namespace TorneosV2.Pages.Configuracion
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            if (bita.BitacoraId != LastBita.BitacoraId)
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+               // bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
+        }
+        public async Task BitacoraWrite()
+        {
+            foreach(var b in LasBitacoras)
+            {
+                b.OrgAdd(ElUser.Org);
+            }
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
         }
 
         public async Task LogAll(Z192_Logs log)

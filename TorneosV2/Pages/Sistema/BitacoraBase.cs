@@ -55,6 +55,8 @@ namespace TorneosV2.Pages.Sistema
             {
                 PrimeraVez = false;
                 await LeerElUser();
+                Z190_Bitacora bita = new(ElUser.UserId, $"{TBita}, se consulto listado de bitacora!", ElUser.OrgId);
+                await BitacoraAll(bita);
             }
         }
 
@@ -246,6 +248,7 @@ namespace TorneosV2.Pages.Sistema
                 if (bita.BitacoraId != LastBita.BitacoraId)
                 {
                     LastBita = bita;
+                    bita.OrgAdd(ElUser.Org);
                     await BitaRepo.Insert(bita);
                 }
             }

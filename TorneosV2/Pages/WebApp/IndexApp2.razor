@@ -11,8 +11,7 @@
 <AuthorizeView>
     <Authorized>
         <CascadingValue Value="ElUser" Name="ElUserAll">
-
-            @if (Leyendo || ElUser == null || ElUser.UserId.Length < 15)
+            @if (ElUser == null || ElUser.UserId.Length < 15)
             {
                 <div class="spinner">IndexApp</div>
             }
@@ -27,30 +26,39 @@
                 }
                 else
                 {
-                    @if (ElUser.Nivel > 5)
-                            {<RadzenLink href="/sistema">Administracion</RadzenLink>}
+                    @if (ElUser.Nivel > 5) {<RadzenLink href="/sistema">Administracion</RadzenLink>}
 
-                    <RadzenTabs>
+
+                    <RadzenTabs @bind-SelectedIndex="IndexTabAll">
                         <Tabs>
                             <RadzenTabsItem Text="Nombres">
-                                <NombresList />
+                                <NombresList 
+                                                ReadNENombres="ReadLosNombresAll" LosNombres="LosNombresAll"
+                                                ReadNEPaises="ReadPaisesAll" LosPaises="LosPaisesAll"
+                                                ReadNEConfig="ReadLosConfigsAll" LosConfigs="LosConfigsAll"/>
                             </RadzenTabsItem>
                             @if (ElUser.Nivel > 4)
                             {
                                 <RadzenTabsItem Text="Servicios">
-                                    <ServiciosList />
+                                    <ServiciosList 
+                                                    ReadOrganizaciones="ReadLasOrgsAll" LasOrgs="LasOrgsAll"
+                                                    ReadServicios="ReadLosServiciosAll" LosServicios="LosServiciosAll" />
                                 </RadzenTabsItem>
+
+
                                 <RadzenTabsItem Text="Paises">
-                                    <PaisesList />
+                                    <PaisesList 
+                                                ReadPaises="ReadPaisesAll" LosPaises="LosPaisesAll" />
                                 </RadzenTabsItem>
+
                             }
                         </Tabs>
                     </RadzenTabs>
 
                 }
-                
-            }
 
+            }
+            
         </CascadingValue>
     </Authorized>
 
@@ -63,6 +71,6 @@
 </AuthorizeView>
 
 @code {
-
-}
+        
+    }
 

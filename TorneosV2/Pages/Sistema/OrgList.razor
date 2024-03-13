@@ -27,7 +27,7 @@
                 </RadzenButton>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
-                          ButtonStyle="ButtonStyle.Info" Click="LeerOrgs">
+                          ButtonStyle="ButtonStyle.Info" Click="DetReadallOrgs">
                 Actualizar
             </RadzenButton>
         </HeaderTemplate>
@@ -228,8 +228,8 @@ else
             txt = $"{TBita}, Se actualizo la info de org {org.Comercial}";
 
             Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
-            bitaT.OrgAdd(org);
-            await BitacoraAll(bitaT);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -242,9 +242,9 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, false);
             await LogAll(logTemp);
-            await OrgsGrid!.Reload();
+            
         }
-
+        await OrgsGrid!.Reload();
     }
 
     async Task SaveRow(Z100_Org org)
@@ -290,8 +290,8 @@ else
                 $"Se creo un nuevo registro de org {org.Comercial}", 0));
 
             Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
-            bitaT.OrgAdd(org);
-            await BitacoraAll(bitaT);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -304,11 +304,8 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, true);
             await LogAll(logTemp);
-
-            await OrgsGrid!.Reload();
-
         }
-
+        await OrgsGrid!.Reload();
     }
 
     public void ShowNotification(NotificationMessage message)

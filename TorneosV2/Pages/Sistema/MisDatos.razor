@@ -161,7 +161,7 @@
 
             Z110_User resultado = await UserRepo.Update(ElUser);
 
-            string txt = resultado.UserId; 
+            string txt = resultado.UserId;
 
             if (resultado != null)
             {
@@ -174,8 +174,8 @@
                 txt = $"{TBita}, Actualizando datos {resultado.Completo} " + txt;
 
                 Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
-                bitaT.OrgAdd(ElUser.Org);
-                await BitacoraAll(bitaT);
+                BitacoraMas(bitaT);
+                await BitacoraWrite();
 
             }
             else

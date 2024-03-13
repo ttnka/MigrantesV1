@@ -11,58 +11,59 @@ namespace TorneosV2.Pages.Datos
 	public class DomicilioListBase : ComponentBase
 	{
         public const string TBita = "Listado de Domicilios";
+        
 
+        // Event CallBack
         [Parameter]
-        public bool Administracion { get; set; } = false;
+        public EventCallback<Z300_Nombres> ReadDEDomicilios { get; set; }
+        [Parameter]
+        public EventCallback ReadDETipos { get; set; }
+        [Parameter]
+        public EventCallback ReadDEPaises { get; set; }
 
-        [Inject]
-        public Repo<ZConfig, ApplicationDbContext> ZConfigRepo { get; set; } = default!;
-
+        // Servicios Insertados
         [Inject]
         public Repo<Z304_Domicilio, ApplicationDbContext> DomicilioRepo { get; set; } = default!;
-        [Inject]
-        public Repo<Z390_Pais, ApplicationDbContext> PaisRepo { get; set; } = default!;
 
-        //protected List<KeyValuePair<string, string>> Sexos { get; set; } =
-        //    new List<KeyValuePair<string, string>>();
-
+        // Listado de valores
         [Parameter]
-        public Z300_Nombres ElNombre { get; set; } = default!;
-        protected List<Z304_Domicilio> LosDomicilios { get; set; } = new List<Z304_Domicilio>();
-        protected List<Z390_Pais> LosPaises { get; set; } = new List<Z390_Pais>();
-        protected List<ZConfig> LosTipos { get; set; } = new List<ZConfig>();
+        public Z300_Nombres ElNombre { get; set; } = new();
+        [Parameter]
+        public List<Z304_Domicilio> LosDomicilios { get; set; } = new List<Z304_Domicilio>();
+        [Parameter]
+        public List<Z390_Pais> LosPaises { get; set; } = new List<Z390_Pais>();
+        [Parameter]
+        public List<ZConfig> LosTipos { get; set; } = new List<ZConfig>();
+        [Parameter]
+        public int IndexTabD { get; set; }
+        [Parameter]
+        public bool ShowDataD { get; set; }
 
         public RadzenDataGrid<Z304_Domicilio>? DomiciliosGrid { get; set; } =
                                         new RadzenDataGrid<Z304_Domicilio>();
 
+        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool Primera { get; set; } = true;
-        protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
-
         public string Msn { get; set; } = "";
 
         protected override async Task OnInitializedAsync()
         {
             if (Primera)
             {
-                await Leer();
-                await LeerDomicilios();
                 Primera = false;
+                Z190_Bitacora bitaT = new(ElUser.UserId,
+                    $"{TBita}, se consulto el listado de domicilios {ElNombre.Completo}", ElUser.OrgId);
+                BitacoraMas(bitaT);
             }
         }
 
-        protected async Task Leer()
-        {
-            var pTmp = await PaisRepo.Get();
-            LosPaises = pTmp.Any() ? pTmp.ToList() : LosPaises;
-        }
-
+        
         protected async Task LeerDomicilios()
         {
-            Leyendo = true;
-            var domTmp = await DomicilioRepo.Get(x => x.NombreId == ElNombre.NombreId);
-            LosDomicilios = domTmp.Any() ? domTmp.ToList() : LosDomicilios;
-            Leyendo = false;
+            await ReadDEDomicilios.InvokeAsync(ElNombre);
+            await ReadDEPaises.InvokeAsync();
+            await ReadDETipos.InvokeAsync();
         }
 
         protected async Task<ApiRespuesta<Z304_Domicilio>> Servicio(ServiciosTipos tipo, Z304_Domicilio dom)
@@ -77,6 +78,7 @@ namespace TorneosV2.Pages.Datos
 
                 dom.PaisAdd(paisTemp);
                 dom.NombreAdd(ElNombre);
+                dom.Estado = 1;
                 Z304_Domicilio domNew = await DomicilioRepo.Insert(dom);
                 if (domNew != null)
                 {
@@ -93,7 +95,6 @@ namespace TorneosV2.Pages.Datos
                     resp.Data = domUpdated;
                 }
             }
-
             return resp;
         }
 
@@ -136,13 +137,18 @@ namespace TorneosV2.Pages.Datos
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            if (bita.BitacoraId != LastBita.BitacoraId)
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+                bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
+        }
+        public async Task BitacoraWrite()
+        {
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
         }
 
         public async Task LogAll(Z192_Logs log)

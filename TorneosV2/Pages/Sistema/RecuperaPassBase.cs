@@ -22,8 +22,8 @@ namespace TorneosV2.Pages.Sistema
         public UserManager<IdentityUser> UManager { get; set; } = default!;
         [Inject]
         public IEnviarMail SendMail { get; set; } = default!;
-        
 
+        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         public Z110_User Usuario { get; set; } = default!;
         public MailInfo RecuperaData { get; set; } = new();
         public RadzenTemplateForm<MailInfo>? RecuperaForm { get; set; } = new RadzenTemplateForm<MailInfo>();
@@ -73,8 +73,8 @@ namespace TorneosV2.Pages.Sistema
                     avance += $"un mail con la informacion del cambio password! ";
 
                     Z190_Bitacora bitaT = new(Usuario.UserId, $"Se genero un cambio de password {TBita}", Usuario.OrgId);
-                    bitaT.OrgAdd(Usuario.Org);
-                    await BitacoraAll(bitaT);
+                    BitacoraMas(bitaT);
+                    await BitacoraWrite();
                 }
             }
             catch (Exception ex)
@@ -126,24 +126,19 @@ namespace TorneosV2.Pages.Sistema
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            try
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                if (bita.BitacoraId != LastBita.BitacoraId)
-                {
-                    LastBita = bita;
-                    await BitaRepo.Insert(bita);
-                }
-            }
-            catch (Exception ex)
-            {
-                Z192_Logs LogT = new(ElUser.UserId,
-                    $"Error al intentar escribir BITACORA, {TBita},{ex}", true);
-                await LogAll(LogT);
+                bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
         }
-
+        public async Task BitacoraWrite()
+        {
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
+        }
         public async Task LogAll(Z192_Logs log)
         {
             try

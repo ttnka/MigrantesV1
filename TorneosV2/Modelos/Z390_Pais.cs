@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace TorneosV2.Modelos
@@ -20,7 +20,8 @@ namespace TorneosV2.Modelos
         public int Estado { get; set; } = 2;
         public bool Status { get; set; } = true;
 
-        public string ClaveCorto => Clave + Corto;
+        public string ClaveCorto => Clave + " " + Corto;
+        public string ClaveTel => Clave + " " + Telefono;
 
         public virtual ICollection<Z304_Domicilio> Domicilio { get; set; } = new List<Z304_Domicilio>();
 

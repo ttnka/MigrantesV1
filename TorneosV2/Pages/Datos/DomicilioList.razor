@@ -1,10 +1,10 @@
-﻿@inherits DomicilioListBase
+﻿
+@inherits DomicilioListBase
 @inject NotificationService NS
 @using TorneosV2.Modelos
 @using static TorneosV2.Modelos.MyFunc;
 
-
-@if (LosDomicilios != null && !Leyendo)
+@if (LosDomicilios != null)
 {
     <RadzenDataGrid @ref="DomiciliosGrid"
                     AllowFiltering="true" AllowPaging="true" PageSize="50"
@@ -19,7 +19,7 @@
             {
                 <RadzenButton Icon="refresh" style="margin-bottom: 10px"
                               ButtonStyle="ButtonStyle.Success" Click="InsertRow">
-                    Agrega dato
+                    Agrega domicilio
                 </RadzenButton>
             }
             <RadzenButton Icon="refresh" style="margin-bottom: 10px"
@@ -42,12 +42,12 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Pais" Filterable="true"
-                                  Width="125px" Property="Pais">
+                                  Width="150px" Property="Pais">
                 <Template Context="datos">
-                    @datos.Pais
+                    <RadzenLabel>@LosPaises.FirstOrDefault(x=>x.PaisId== datos.PaisId)!.ClaveCorto</RadzenLabel>
                 </Template>
                 <EditTemplate Context="datos">
-                    <RadzenDropDown Name="Pais" Data=LosPaises @bind-Value=@datos.Pais
+                    <RadzenDropDown Name="PaisId" Data=LosPaises @bind-Value=@datos.PaisId
                                     ValueProperty="PaisId" TextProperty="ClaveCorto" AllowClear="false"
                                     Style="width: 90%;" />
 
@@ -119,7 +119,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Calle y numero" Filterable="true"
-                                  Width="150px" Property="Calle">
+                                  Width="250px" Property="Calle">
                 <Template Context="datos">
                     <RadzenLabel>@datos.Calle </RadzenLabel>
 
@@ -135,7 +135,7 @@
             </RadzenDataGridColumn>
 
             <RadzenDataGridColumn TItem="Z304_Domicilio" Title="Observaciones" Property="Observaciones"
-                                  Filterable="true" Width="80px">
+                                  Filterable="true" Width="200px">
                 <Template Context="datos">
                     <RadzenLabel> @datos.Observaciones</RadzenLabel>
 
@@ -213,9 +213,10 @@ else
     async void OnUpdateRow(Z304_Domicilio dom)
     {
         if (dom == domToInsert) domToInsert = null!;
-        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
         Editando = !Editando;
         ApiRespuesta<Z304_Domicilio> resultado = await Servicio(ServiciosTipos.Update, dom);
+
 
         string txt = $"Estado: {dom.Estado}, municipio: {dom.Municipio}, ciudad: {dom.Ciudad} ";
         txt += $"Colonia: {dom.Colonia}, calle y numero: {dom.Calle}, Observaciones: {dom.Observaciones} ";
@@ -225,11 +226,11 @@ else
         {
             ShowNotification(ElMsn("Ok", "Actualizo",
                 $"Se actualizo la informacion del domicilio {dom.Calle} ", 0));
-            txt = $"{TBita}, Se actualizo la informacion del domicilio: pais {dom.Pais} ";
 
+            txt = $"{TBita}, Se actualizo la informacion del domicilio: pais {dom.Pais.ClaveCorto} " +txt;
             Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
-            bitaT.OrgAdd(ElUser.Org);
-            await BitacoraAll(bitaT);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -242,7 +243,6 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, false);
             await LogAll(logTemp);
-            await DomiciliosGrid!.Reload();
         }
     }
 
@@ -262,16 +262,26 @@ else
     async Task InsertRow()
     {
         domToInsert = new() { Estado = 3 };
+
+        domToInsert.NombreId = ElNombre.NombreId;
+        domToInsert.Nombre = ElNombre;
+
         Editando = !Editando;
         await DomiciliosGrid!.InsertRow(domToInsert);
     }
 
     async void OnCreateRow(Z304_Domicilio dom)
     {
-        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", -2000));
         if (dom == domToInsert) domToInsert = null!;
 
+        dom.NombreAdd(ElNombre);
+        var elPais = LosPaises.Any(x => x.PaisId == dom.PaisId) ? LosPaises.FirstOrDefault(x => x.PaisId == dom.PaisId) :
+            LosPaises.FirstOrDefault();
+        dom.PaisAdd(elPais!);
         Editando = !Editando;
+        dom.Estado = 1;
+
         ApiRespuesta<Z304_Domicilio> resultado = await Servicio(ServiciosTipos.Insert, dom);
 
         string txt = $"Estado: {dom.Estado}, municipio: {dom.Municipio}, ciudad: {dom.Ciudad} ";
@@ -283,9 +293,10 @@ else
             ShowNotification(ElMsn("Exito", "Nuevo dato de domicilio",
                 $"Se agrego un dato de domicilio {dom.Calle} ", 0));
 
+            txt = $"{TBita}, Se agrego la informacion del domicilio: pais {dom.Pais.ClaveCorto} " + txt;
             Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
-            bitaT.OrgAdd(ElUser.Org);
-            await BitacoraAll(bitaT);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
         }
         else
         {
@@ -298,7 +309,6 @@ else
             txt += etxt;
             Z192_Logs logTemp = new(ElUser.UserId, txt, true);
             await LogAll(logTemp);
-            await DomiciliosGrid!.Reload();
         }
     }
 

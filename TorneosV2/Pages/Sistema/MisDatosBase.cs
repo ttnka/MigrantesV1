@@ -27,7 +27,6 @@ namespace TorneosV2.Pages.Sistema
         public Repo<Z110_User, ApplicationDbContext> UserRepo { get; set; } = default!;
 
         public MisDatosClass MDUser { get; set; } = new();
-        protected bool Leyendo { get; set; } = false;
         protected bool Editando { get; set; } = false;
 
         public List<KeyValuePair<int, string>> Niveles { get; set; } =
@@ -37,6 +36,7 @@ namespace TorneosV2.Pages.Sistema
         public RadzenTemplateForm<MisDatosClass>? MDataForm { get; set; } =
                         new RadzenTemplateForm<MisDatosClass>();
 
+        protected List<Z190_Bitacora> LasBitacoras { get; set; } = new List<Z190_Bitacora>();
         protected bool BotonNuevo { get; set; } = false;
         protected bool Primera { get; set; } = true;
 
@@ -46,6 +46,8 @@ namespace TorneosV2.Pages.Sistema
             {
                 Leer();
                 Primera = false;
+                Z190_Bitacora bita = new(ElUser.UserId, $"{TBita}, se consulto mis datos del usuario", ElUser.OrgId);
+                BitacoraMas(bita);
             }
 
             //await LeerOrgs();
@@ -54,6 +56,7 @@ namespace TorneosV2.Pages.Sistema
         protected void Leer()
         {
             if (ElUser == null) return;
+
             MDUser.Email = ElUser.OldEmail;
             MDUser.Nombre = ElUser.Nombre;
             MDUser.Paterno = ElUser.Paterno;
@@ -85,8 +88,8 @@ namespace TorneosV2.Pages.Sistema
                 if (cambio.Succeeded)
                 {
                     Z190_Bitacora bitaT = new(ElUser.UserId, $"Se actualizo el password del usuario", ElUser.OrgId);
-                    bitaT.OrgAdd(ElUser.Org);
-                    await BitacoraAll(bitaT);
+                    BitacoraMas(bitaT);
+                    await BitacoraWrite();
                 }
                 else
                 {
@@ -192,15 +195,19 @@ namespace TorneosV2.Pages.Sistema
         public NavigationManager NM { get; set; } = default!;
         public Z190_Bitacora LastBita { get; set; } = new(userId: "", desc: "", orgId: "");
         public Z192_Logs LastLog { get; set; } = new(userId: "Sistema", desc: "", sistema: false);
-        public async Task BitacoraAll(Z190_Bitacora bita)
+        public void BitacoraMas(Z190_Bitacora bita)
         {
-            if (bita.BitacoraId != LastBita.BitacoraId)
+            if (!LasBitacoras.Any(b => b.BitacoraId == bita.BitacoraId))
             {
-                LastBita = bita;
-                await BitaRepo.Insert(bita);
+                bita.OrgAdd(ElUser.Org);
+                LasBitacoras.Add(bita);
             }
         }
-
+        public async Task BitacoraWrite()
+        {
+            await BitaRepo.InsertPlus(LasBitacoras);
+            LasBitacoras.Clear();
+        }
         public async Task LogAll(Z192_Logs log)
         {
             if (log.LogId != LastLog.LogId)

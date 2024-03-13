@@ -1,0 +1,514 @@
+﻿
+@inherits ZConfigListBase
+@inject NotificationService NS
+@using TorneosV2.Modelos
+@using static TorneosV2.Modelos.MyFunc;
+
+@if (LosConfigs != null)
+{
+
+    <RadzenPanel AllowCollapse="true" Class="rz-my-10 rz-mx-auto" Style="width: 100%;">
+        <HeaderTemplate>
+            <RadzenText TextStyle="TextStyle.H6" Class="rz-display-flex rz-align-items-left rz-m-0">
+                <RadzenIcon Icon="account_box" class="rz-mr-1" /><b>Instrucciones</b>
+            </RadzenText>
+        </HeaderTemplate>
+        <ChildContent>
+            <RadzenCard class="rz-mt-10">
+                        
+                <table>
+                    <tr>
+                        <th>Titulo</th>
+                        <th>Valor</th>
+                        <th>**</th>
+                        <th>**</th>
+                        <th>Titulo</th>
+                        <th>Valor</th>
+                    </tr>
+                    <tr>
+                        <td>--- ENCABEZADO -- </td>
+                        <td>--- ENCABEZADO -- </td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>--- ENCABEZADO -- </td>
+                        <td>--- ENCABEZADO -- </td>
+                    </tr>
+                    <tr>
+                        <td>Grupo: </td>
+                        <td>Contactos </td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Grupo: </td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Tipo: </td>
+                        <td> Encabezado  </td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Tipo:</td>
+                        <td> xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Titulo:</td>
+                        <td>Datos de Contacto</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Titulo:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>---ELEMENTOS---</td>
+                        <td>---ELEMENTOS---</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>---ELEMENTOS---</td>
+                        <td>---ELEMENTOS---</td>
+                    </tr>
+                    <tr>
+                        <td>Grupo:</td>
+                        <td>Contactos </td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Grupo:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Tipo:</td>
+                        <td> Elemento</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Tipo:</td>
+                        <td> Elemento</td>
+                    </tr>
+
+                    <tr>
+                        <td>Titulo:</td>
+                        <td>Telefono </td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Titulo:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Texto:</td>
+                        <td>Solo 10 digitos sin guiones</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Entero:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Entero:</td>
+                        <td>10 digitos</td>
+                        <td>**</td>
+                        <td> **</td>
+                        <td>Entero:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>-----</td>
+                        <td>-----</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>-----</td>
+                        <td>-----</td>
+                    </tr>
+                    <tr>
+                        <td>Grupo:</td>
+                        <td>Contactos</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Grupo:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Tipo:</td>
+                        <td>Elemento</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Tipo:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Titulo:</td>
+                        <td>Email</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Titulo:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Texto:</td>
+                        <td>Instrucciones de llenado es requerido</td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Entero:</td>
+                        <td>xxxx</td>
+                    </tr>
+                    <tr>
+                        <td>Entero</td>
+                        <td>75 digitos </td>
+                        <td>**</td>
+                        <td>**</td>
+                        <td>Entero:</td>
+                        <td>xxxx</td>
+                    </tr>
+                </table>
+                    
+                    
+               
+            </RadzenCard>
+        </ChildContent>
+    </RadzenPanel>
+
+    <RadzenDataGrid @ref="ConfigsGrid"
+                                AllowFiltering="true" AllowPaging="true" PageSize="50"
+                                AllowSorting="true" AllowColumnResize="true"
+                                ExpandMode="DataGridExpandMode.Single" AllowGrouping="false"
+                                EditMode="DataGridEditMode.Single" AllowColumnPicking="true"
+                                Data="@LosConfigs" TItem="ZConfig"
+                                RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow" EmptyText="No hay registros">
+
+        <HeaderTemplate>
+            @if (ElUser.Nivel > 5)
+            {
+                <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                                ButtonStyle="ButtonStyle.Success" Click="InsertRow">
+                    Agrega datos
+                </RadzenButton>
+            }
+            <RadzenButton Icon="refresh" style="margin-bottom: 10px"
+                            ButtonStyle="ButtonStyle.Info" Click="DetReadConfigs">
+                Actualizar
+            </RadzenButton>
+            
+        </HeaderTemplate>
+
+        <!-- AQUI EMPIEZA REPORTE-->
+
+        <Columns>
+            <RadzenDataGridColumn TItem="ZConfig" Title="Id"
+                                  Filterable="false" Width="50px">
+                <Template Context="datos">
+                    @(LosConfigs.IndexOf(datos) + 1)
+
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Grupo" Filterable="true"
+                                  Width="125px" Property="Grupo">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Grupo</RadzenLabel>
+                </Template>
+                <EditTemplate Context="datos">
+
+                    <RadzenTextBox Name="Grupo" @bind-Value="datos.Grupo" Placeholder="Algun valor"
+                                   Style="width: 100%" />
+                    <RadzenLengthValidator Component="Grupo" Min="1" Max="25"
+                                           Text="Algun dato es requerido en valor, con maximo 25 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Tipo" Filterable="true"
+                                  Width="150px" Property="Tipo">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Tipo </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Tipo" @bind-Value="datos.Tipo" Placeholder="Algun valor"
+                                   Style="width: 100%" />
+
+                    <RadzenLengthValidator Component="Tipo" Min="1" Max="25"
+                                           Text="Algun dato es requerido en valor, con maximo 25 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Titulo" Filterable="true"
+                                  Width="150px" Property="Titulo">
+                <Template Context="datos">
+                    <RadzenLabel>@datos.Titulo </RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Titulo" @bind-Value="datos.Titulo" Placeholder="Algun valor"
+                                   Style="width: 100%" />
+                    <RadzenLengthValidator Component="Titulo" Min="1" Max="50"
+                                           Text="Algun dato es requerido en valor, con maximo 50 caracteres" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Usuarios" Filterable="false"
+                                  Width="150px">
+                <Template Context="datos">
+                    @if (!string.IsNullOrEmpty(datos.Usuario) && LosUsers.Any(x => x.UserId == datos.Usuario))
+                    {
+                        <RadzenLabel>@datos.Usuario </RadzenLabel>
+                    }
+                    else
+                    {
+                        <RadzenLabel>Sin nombre</RadzenLabel>
+                    }
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDropDown Name="Usuario" Data=LosUsers @bind-Value=@datos.Usuario
+                                    ValueProperty="UserId" TextProperty="Completo" AllowClear="true"
+                                    Style="width: 90%;" />
+
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Texto" Filterable="true"
+                                  Width="150px">
+                <Template Context="datos">
+
+                    <RadzenLabel>@datos.Txt</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenTextBox Name="Txt" @bind-Value="datos.Txt" Placeholder="Algun valor"
+                                   Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Entero" Filterable="false" Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Entero</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenNumeric Name="Entero" @bind-Value="datos.Entero" Placeholder="Valor numerico"
+                                   Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Decimal" Filterable="false" Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Decim</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenNumeric Name="Entero" @bind-Value="datos.Decim" Placeholder="Valor numerico"
+                                   Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Fecha 1" Filterable="false" Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Fecha1</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDatePicker Name="Fecha1" @bind-Value="datos.Fecha1" Placeholder="Valor fecha"
+                                      Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Fecha 2" Filterable="false" Width="150px">
+                <Template Context="datos">
+                    <RadzenLabel> @datos.Fecha2</RadzenLabel>
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDatePicker Name="Fecha2" @bind-Value="datos.Fecha2" Placeholder="Valor fecha"
+                                      Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Title="Si / no" Filterable="false" Width="150px">
+                <Template Context="datos">
+                    @if (datos.SiNo)
+                    {
+                        <RadzenLabel>Si</RadzenLabel>
+                    }
+                    else
+                    {
+                        <RadzenLabel>No</RadzenLabel>
+                    }
+
+
+                </Template>
+                <EditTemplate Context="datos">
+                    <RadzenDatePicker Name="Fecha2" @bind-Value="datos.Fecha2" Placeholder="Valor fecha"
+                                      Style="width: 100%" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="ZConfig" Context="sampleBlazorModelsSampleOrder"
+                                  Filterable="false" Sortable="false" TextAlign="TextAlign.Center"
+                                  Width="250px" Title="Estado">
+                <Template Context="datos">
+
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary"
+                                  Class="m-1" Click="@((args) => EditRow(datos))" Visible="@(!Editando)" />
+
+                    @if (datos.Status)
+                    {
+                        <b>Activo</b>
+                    }
+                    else
+                    {
+                        <b>Suspendido</b>
+                    }
+
+
+                </Template>
+
+                <EditTemplate Context="datos">
+
+                    @if (datos.Estado != 3)
+                    {
+                        <div style="white-space:pre-wrap">
+                            Borrar este registro?
+                            <RadzenSelectBar @bind-Value=@datos.Status TValue="bool"
+                                             Placeholder="Borrar este registro?">
+                                <Items>
+                                    <RadzenSelectBarItem Text="No" Value="true" />
+                                    <RadzenSelectBarItem Text="Si" Value="false" />
+                                </Items>
+                            </RadzenSelectBar>
+                        </div>
+                    }
+
+                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success"
+                                  Class="m-1" Click="@((args) => SaveRow(datos))" />
+
+                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Class="m-1"
+                                  Click="@((args) => CancelEdit(datos))" />
+                </EditTemplate>
+
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+}
+
+else
+{
+    <div class="spinner">
+        Contacto
+    </div>
+}
+
+
+@code {
+    ZConfig confToInsert = new() { Estado = 3 };
+
+    async Task EditRow(ZConfig conf)
+    {
+        await ConfigsGrid!.EditRow(conf);
+        Editando = !Editando;
+    }
+
+    async void OnUpdateRow(ZConfig conf)
+    {
+        if (conf == confToInsert) confToInsert = null!;
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        Editando = !Editando;
+        ApiRespuesta<ZConfig> resultado = await Servicio(ServiciosTipos.Update, conf);
+
+        string txt = $"Grupo: {conf.Grupo} Tipo: {conf.Tipo} ";
+        txt += string.IsNullOrEmpty(conf.Usuario) ? "" : $"Usuario: {conf.Usuario}";
+        txt += string.IsNullOrEmpty(conf.Txt) ? "" : $"Txt: {conf.Txt}";
+        txt += $"Entero: {conf.Entero}, Decimal: {conf.Decim}";
+        txt += $"Fecha1: {conf.Fecha1}, Fecha2: {conf.Fecha2}";
+        txt += $"Si o No: {conf.SiNo}";
+        txt += conf.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Ok", "Actualizando",
+                $"Se actualizo la informacion del configurador {conf.Titulo} ", 0));
+
+            txt = $"{TBita}, Se actualizo la informacion del configurador {conf.Titulo} " + txt;
+            Z190_Bitacora bitaT = new(ElUser.UserId, txt, ElUser.OrgId);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
+        }
+        else
+        {
+            string etxt = $"Error No Se actualizo el tipo {conf.Tipo} ";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 4000));
+            txt = $"{TBita}, No se actualizo un registro de nombre" + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, false);
+            await LogAll(logTemp);
+            await ConfigsGrid!.Reload();
+        }
+    }
+
+    async Task SaveRow(ZConfig conf)
+    {
+        await ConfigsGrid!.UpdateRow(conf);
+    }
+
+    void CancelEdit(ZConfig conf)
+    {
+        if (conf == confToInsert) confToInsert = null!;
+
+        Editando = !Editando;
+        ConfigsGrid!.CancelEditRow(conf);
+    }
+
+    async Task InsertRow()
+    {
+        confToInsert = new() { Estado = 3};
+
+        Editando = !Editando;
+        await ConfigsGrid!.InsertRow(confToInsert);
+    }
+
+    async void OnCreateRow(ZConfig conf)
+    {
+        ShowNotification(ElMsn("Info", "Estamos trabajando!", "Dame un minuto para realizar estos cambios!", 0));
+        if (conf == confToInsert) confToInsert = null!;
+
+        Editando = !Editando;
+        ApiRespuesta<ZConfig> resultado = await Servicio(ServiciosTipos.Insert, conf);
+
+        string txt = $"Grupo: {conf.Grupo} Tipo: {conf.Tipo} ";
+        txt += string.IsNullOrEmpty(conf.Usuario) ? "" : $"Usuario: {conf.Usuario}";
+        txt += string.IsNullOrEmpty(conf.Txt) ? "" : $"Txt: {conf.Txt}";
+        txt += $"Entero: {conf.Entero}, Decimal: {conf.Decim}";
+        txt += $"Fecha1: {conf.Fecha1}, Fecha2: {conf.Fecha2}";
+        txt += $"Si o No: {conf.SiNo}";
+        txt += conf.Status ? "Estatus: Activo" : "Estatus: Suspendido";
+
+        if (resultado.Exito)
+        {
+            ShowNotification(ElMsn("Exito", "Nuevo dato de contacto",
+                $"Se creo un nuevo dato de contacto {conf.Titulo} ", 0));
+
+            txt = $"{TBita}, Se agrego informacion del configurador {conf.Titulo} " + txt;
+            Z190_Bitacora bitaT = new(ElUser.UserId, $"{TBita}, {txt}", ElUser.OrgId);
+            BitacoraMas(bitaT);
+            await BitacoraWrite();
+        }
+        else
+        {
+            string etxt = $"Error NO se agrego un nuevo dato {conf.Titulo}    ";
+            foreach (var e in resultado.MsnError)
+            { etxt += $", {e}"; }
+
+            ShowNotification(ElMsn("Error", "Error", etxt, 0));
+            txt = $"{TBita}, No se creo un nuevo tipo de dato " + txt + ", ";
+            txt += etxt;
+            Z192_Logs logTemp = new(ElUser.UserId, txt, true);
+            await LogAll(logTemp);
+
+        }
+        await ConfigsGrid!.Reload();
+    }
+
+    public void ShowNotification(NotificationMessage message)
+    {
+        NS.Notify(message);
+    }
+}
